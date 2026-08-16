@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - DigiStart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="login" class="auth-page">
+    <div class="auth-shell">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">💼 DigiStart</div>
+                <h2>Masuk ke akun</h2>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail">Email atau Nomor HP</label>
+                    <input id="loginEmail" type="text" placeholder="Masukkan email atau nomor HP" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input id="loginPassword" type="password" placeholder="Masukkan password" required>
+                </div>
+                <button type="submit" class="primary-btn large full-width">Login</button>
+            </form>
+
+            <div class="auth-divider">ATAU</div>
+
+            <form id="registerForm" class="auth-form auth-form-alt">
+                <div class="form-group">
+                    <label for="registerName">Nama</label>
+                    <input id="registerName" type="text" placeholder="Nama lengkap" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input id="registerEmail" type="email" placeholder="Email aktif" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPhone">Nomor HP</label>
+                    <input id="registerPhone" type="tel" placeholder="Nomor HP" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input id="registerPassword" type="password" placeholder="Buat password" required>
+                </div>
+                <button type="submit" class="secondary-btn large full-width">Daftar Sekarang</button>
+            </form>
+
+            <p class="auth-footer">
+                Kembali ke <a href="index.html">Beranda</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

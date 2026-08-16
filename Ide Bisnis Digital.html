@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="publicApp" class="public-app">
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
@@ -318,9 +319,9 @@
             </div>
             <div class="modal-body">
                 <div class="register-tabs">
-                    <button class="tab-btn active" onclick="switchRegisterTab('phone')">📱 Nomor HP</button>
-                    <button class="tab-btn" onclick="switchRegisterTab('email')">📧 Email</button>
-                    <button class="tab-btn" onclick="switchRegisterTab('google')">🔍 Google</button>
+                    <button class="tab-btn active" data-tab="phone" onclick="switchRegisterTab('phone', this)">📱 Nomor HP</button>
+                    <button class="tab-btn" data-tab="email" onclick="switchRegisterTab('email', this)">📧 Email</button>
+                    <button class="tab-btn" data-tab="google" onclick="switchRegisterTab('google', this)">🔍 Google</button>
                 </div>
 
                 <!-- Phone Registration -->
@@ -410,6 +411,142 @@
             </div>
         </div>
     </footer>
+    </div>
+
+    <div id="storefrontView" class="storefront-view hidden">
+        <header class="store-header">
+            <div class="store-topbar">
+                <div class="brand-block">
+                    <div class="brand-mark">D</div>
+                    <div>
+                        <div class="brand-name">DigiStore</div>
+                        <div class="brand-subtitle">Marketplace produk digital</div>
+                    </div>
+                </div>
+
+                <label class="store-search" aria-label="Cari produk">
+                    <span>🔎</span>
+                    <input type="text" id="productSearch" placeholder="Cari produk atau brand...">
+                </label>
+
+                <div class="store-actions">
+                    <button class="mini-btn" type="button">Wishlist</button>
+                    <button class="mini-btn" type="button">Keranjang (2)</button>
+                    <button class="primary-btn" id="logoutBtn" type="button">Logout</button>
+                </div>
+            </div>
+
+            <nav class="store-nav">
+                <button class="store-nav-item active" type="button" data-filter="all">Semua</button>
+                <button class="store-nav-item" type="button" data-filter="electronics">Elektronik</button>
+                <button class="store-nav-item" type="button" data-filter="fashion">Fashion</button>
+                <button class="store-nav-item" type="button" data-filter="home">Rumah</button>
+                <button class="store-nav-item" type="button" data-filter="beauty">Kecantikan</button>
+                <button class="store-nav-item" type="button" data-filter="books">Buku</button>
+            </nav>
+        </header>
+
+        <main class="store-main">
+            <section class="store-hero">
+                <div class="hero-copy">
+                    <span class="promo-badge">Flash Sale 48 Jam</span>
+                    <h1>Jual beli produk pilihan dengan pengalaman belanja yang modern.</h1>
+                    <p>Temukan brand favorit, dukung UMKM lokal, dan nikmati promo spesial setiap hari di DigiStore.</p>
+                    <div class="hero-actions">
+                        <button class="primary-btn large" type="button">Belanja Sekarang</button>
+                        <button class="secondary-btn large" type="button">Jual Produk</button>
+                    </div>
+                    <div class="hero-metrics">
+                        <div>
+                            <strong>18K+</strong>
+                            <span>Produk</span>
+                        </div>
+                        <div>
+                            <strong>4.9/5</strong>
+                            <span>Rating</span>
+                        </div>
+                        <div>
+                            <strong>1.2M</strong>
+                            <span>Pengunjung</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-visual">
+                    <div class="showcase-card large-card">
+                        <span class="card-lable">Best Seller</span>
+                        <div class="showcase-emoji">🎧</div>
+                        <h3>Noise Cancelling Pro</h3>
+                        <p>Rp 2.499.000</p>
+                    </div>
+                    <div class="mini-card-stack">
+                        <div class="showcase-card small-card top">
+                            <span class="card-lable">New Arrival</span>
+                            <div class="showcase-emoji">👟</div>
+                            <h3>Urban Step</h3>
+                            <p>Rp 859.000</p>
+                        </div>
+                        <div class="showcase-card small-card bottom">
+                            <span class="card-lable">Trending</span>
+                            <div class="showcase-emoji">🧴</div>
+                            <h3>Glow Ritual</h3>
+                            <p>Rp 249.000</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="promo-row">
+                <div class="promo-banner orange">
+                    <span>Gratis Ongkir</span>
+                    <strong>Untuk pembelian di atas Rp 300 ribu</strong>
+                </div>
+                <div class="promo-banner purple">
+                    <span>Cashback 10%</span>
+                    <strong>Untuk pelanggan baru setiap weekend</strong>
+                </div>
+            </section>
+
+            <section class="market-section">
+                <div class="section-title-row">
+                    <div>
+                        <span class="eyebrow">Produk unggulan</span>
+                        <h2>Temukan yang paling cocok untuk Anda</h2>
+                    </div>
+                    <button class="secondary-btn" type="button">Lihat semua</button>
+                </div>
+
+                <div id="productGrid" class="product-grid"></div>
+            </section>
+
+            <section class="seller-story">
+                <div class="story-copy">
+                    <span class="eyebrow">Mulai jualan hari ini</span>
+                    <h2>Bangun toko Anda sendiri tanpa ribet</h2>
+                    <p>Kelola produk, transaksi, dan pelanggan hanya dari satu dashboard. Cocok untuk UMKM, creator, dan brand digital.</p>
+                    <ul>
+                        <li>Dashboard penjualan real-time</li>
+                        <li>Promo otomatis untuk pelanggan baru</li>
+                        <li>Integrasi pembayaran cepat dan aman</li>
+                    </ul>
+                </div>
+                <div class="story-panel">
+                    <div class="story-stat">
+                        <strong>Rp 42.8Jt</strong>
+                        <span>Omzet bulan ini</span>
+                    </div>
+                    <div class="story-stat">
+                        <strong>3.4K</strong>
+                        <span>Pesanan sukses</span>
+                    </div>
+                    <div class="story-stat">
+                        <strong>97%</strong>
+                        <span>Customer satisfaction</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
 
     <script src="script.js"></script>
 </body>
