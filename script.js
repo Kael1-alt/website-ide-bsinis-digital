@@ -90,6 +90,81 @@ const recommendations = {
     }
 };
 
+const storefrontProducts = [
+    {
+        id: 1,
+        name: 'Laptop Pro 14"',
+        category: 'electronics',
+        price: 12990000,
+        oldPrice: 14990000,
+        rating: 4.9,
+        reviews: 182,
+        badge: 'Best Seller',
+        seller: 'NovaTech',
+        emoji: '💻'
+    },
+    {
+        id: 2,
+        name: 'Sneaker Urban Flex',
+        category: 'fashion',
+        price: 859000,
+        oldPrice: 1099000,
+        rating: 4.8,
+        reviews: 256,
+        badge: 'Trending',
+        seller: 'Stride Co',
+        emoji: '👟'
+    },
+    {
+        id: 3,
+        name: 'Glow Ritual Kit',
+        category: 'beauty',
+        price: 249000,
+        oldPrice: 349000,
+        rating: 4.7,
+        reviews: 141,
+        badge: 'Top Rated',
+        seller: 'Luma Beauty',
+        emoji: '🧴'
+    },
+    {
+        id: 4,
+        name: 'Smart Lamp Aura',
+        category: 'home',
+        price: 499000,
+        oldPrice: 699000,
+        rating: 4.9,
+        reviews: 92,
+        badge: 'New',
+        seller: 'Mitra Home',
+        emoji: '💡'
+    },
+    {
+        id: 5,
+        name: 'Career Boost Bundle',
+        category: 'books',
+        price: 199000,
+        oldPrice: 329000,
+        rating: 4.8,
+        reviews: 210,
+        badge: 'Popular',
+        seller: 'SkillNest',
+        emoji: '📚'
+    },
+    {
+        id: 6,
+        name: 'AirPods Max Lite',
+        category: 'electronics',
+        price: 2399000,
+        oldPrice: 2999000,
+        rating: 4.9,
+        reviews: 318,
+        badge: 'Limited',
+        seller: 'AudioLab',
+        emoji: '🎧'
+    }
+];
+
 // ========== AI DESCRIPTION TEMPLATES ==========
 const descriptionTemplates = [
     "{bizName} adalah platform inovatif di bidang {bizType} yang dirancang untuk {benefit1}. Dengan teknologi terkini dan user interface yang intuitif, kami membuat {benefit2} menjadi lebih mudah dan efisien.",
@@ -178,6 +253,8 @@ function handleChatKey(event) {
 
 function addChatMessage(message, type) {
     const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
+
     const messageDiv = document.createElement('div');
     messageDiv.className = `chat-message ${type}`;
     messageDiv.innerHTML = `<p>${message}</p>`;
@@ -274,180 +351,242 @@ function copyToClipboard() {
     });
 }
 
-// ========== SCROLL ANIMATION ==========
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize chatbot with greeting
-    setTimeout(() => {
-        addChatMessage(getRandomResponse(chatbotResponses.greeting), 'ai-message');
-    }, 500);
-});
-
 // ========== MODAL FUNCTIONS (LOGIN & REGISTER) ==========
 function openLoginModal() {
-    document.getElementById('loginModal').classList.add('show');
-    document.body.style.overflow = 'hidden';
+    const modal = document.getElementById('loginModal');
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 function closeLoginModal() {
-    document.getElementById('loginModal').classList.remove('show');
+    const modal = document.getElementById('loginModal');
+    if (modal) {
+        modal.classList.remove('show');
+    }
     document.body.style.overflow = 'auto';
 }
 
 function openRegisterModal() {
-    document.getElementById('registerModal').classList.add('show');
-    document.body.style.overflow = 'hidden';
+    const modal = document.getElementById('registerModal');
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 function closeRegisterModal() {
-    document.getElementById('registerModal').classList.remove('show');
+    const modal = document.getElementById('registerModal');
+    if (modal) {
+        modal.classList.remove('show');
+    }
     document.body.style.overflow = 'auto';
 }
 
 function switchToLogin() {
     closeRegisterModal();
-    setTimeout(() => {
-        openLoginModal();
-    }, 300);
+    setTimeout(() => openLoginModal(), 300);
 }
 
 function switchToRegister() {
     closeLoginModal();
-    setTimeout(() => {
-        openRegisterModal();
-    }, 300);
+    setTimeout(() => openRegisterModal(), 300);
 }
 
-function switchRegisterTab(tab) {
-    // Hide all tabs
-    document.querySelectorAll('.register-tab').forEach(el => {
-        el.classList.remove('active');
-    });
-    document.querySelectorAll('.tab-btn').forEach(el => {
-        el.classList.remove('active');
-    });
-    
-    // Show selected tab
-    document.getElementById(tab + 'RegisterForm').classList.add('active');
-    event.target.classList.add('active');
+function switchRegisterTab(tab, buttonElement = null) {
+    document.querySelectorAll('.register-tab').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+    const selectedTab = document.getElementById(tab + 'RegisterForm');
+    if (selectedTab) selectedTab.classList.add('active');
+    if (buttonElement) buttonElement.classList.add('active');
 }
 
-// Login with Google
+function setAuthState(isLoggedIn) {
+    document.body.classList.toggle('logged-in', isLoggedIn);
+    const storefrontView = document.getElementById('storefrontView');
+    const publicApp = document.getElementById('publicApp');
+
+    if (storefrontView) {
+        storefrontView.classList.toggle('hidden', !isLoggedIn);
+    }
+
+    if (publicApp) {
+        publicApp.style.display = isLoggedIn ? 'none' : 'block';
+    }
+
+    if (isLoggedIn) {
+        localStorage.setItem('digistart-logged-in', 'true');
+    } else {
+        localStorage.removeItem('digistart-logged-in');
+    }
+}
+
+function renderStorefrontProducts(filter = 'all', searchTerm = '') {
+    const productGrid = document.getElementById('productGrid');
+    if (!productGrid) return;
+
+    const normalizedSearch = (searchTerm || '').trim().toLowerCase();
+    const filteredProducts = storefrontProducts.filter((product) => {
+        const matchesFilter = filter === 'all' || product.category === filter;
+        const matchesSearch = !normalizedSearch || product.name.toLowerCase().includes(normalizedSearch) || product.seller.toLowerCase().includes(normalizedSearch);
+        return matchesFilter && matchesSearch;
+    });
+
+    if (!filteredProducts.length) {
+        productGrid.innerHTML = '<div class="empty-state">Produk yang Anda cari tidak tersedia saat ini.</div>';
+        return;
+    }
+
+    productGrid.innerHTML = filteredProducts.map((product) => `
+        <article class="product-card" data-category="${product.category}">
+            <div class="product-image">${product.emoji}</div>
+            <div class="product-tag">${product.badge}</div>
+            <div class="product-content">
+                <div class="product-meta">
+                    <span>${product.seller}</span>
+                    <span>⭐ ${product.rating}</span>
+                </div>
+                <h3>${product.name}</h3>
+                <div class="product-price-row">
+                    <strong>Rp ${(product.price).toLocaleString('id-ID')}</strong>
+                    <span>Rp ${(product.oldPrice).toLocaleString('id-ID')}</span>
+                </div>
+                <div class="product-actions">
+                    <button class="primary-btn small" type="button">Tambah</button>
+                    <button class="secondary-btn small" type="button">Beli</button>
+                </div>
+            </div>
+        </article>
+    `).join('');
+}
+
 function loginWithGoogle() {
     alert('🔍 Fitur Login Google sedang dalam pengembangan.\n\nNanti akan terhubung ke Google OAuth.');
-    // Implementasi Google OAuth akan ditambahkan
 }
 
-// Register with Google
 function registerWithGoogle() {
     alert('🔍 Fitur Registrasi Google sedang dalam pengembangan.\n\nNanti akan terhubung ke Google OAuth.');
-    // Implementasi Google OAuth akan ditambahkan
 }
 
-// Handle login form submission
+// ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            // Validasi
-            if (!email || !password) {
-                alert('⚠️ Silakan isi semua field!');
-                return;
-            }
-            
-            // Simulasi login
-            alert(`✅ Login berhasil!\n\nEmail/HP: ${email}\n\nSelamat datang!`);
-            closeLoginModal();
-            loginForm.reset();
-        });
-    }
-    
-    const phoneRegisterForm = document.getElementById('phoneRegisterForm');
-    if (phoneRegisterForm) {
-        phoneRegisterForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const name = document.getElementById('regName').value;
-            const phone = document.getElementById('regPhone').value;
-            const password = document.getElementById('regPassword').value;
-            const passwordConfirm = document.getElementById('regPasswordConfirm').value;
-            
-            // Validasi
-            if (!name || !phone || !password || !passwordConfirm) {
-                alert('⚠️ Silakan isi semua field!');
-                return;
-            }
-            
-            if (password !== passwordConfirm) {
-                alert('⚠️ Password tidak cocok!');
-                return;
-            }
-            
-            if (password.length < 8) {
-                alert('⚠️ Password minimal 8 karakter!');
-                return;
-            }
-            
-            // Simulasi registrasi
-            alert(`✅ Registrasi berhasil!\n\nNama: ${name}\nNomor HP: ${phone}\n\nSelamat datang di DigiStart!`);
-            closeRegisterModal();
-            phoneRegisterForm.reset();
-        });
-    }
-    
-    const emailRegisterForm = document.getElementById('emailRegisterForm');
-    if (emailRegisterForm) {
-        emailRegisterForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const name = document.getElementById('regNameEmail').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPasswordEmail').value;
-            const passwordConfirm = document.getElementById('regPasswordEmailConfirm').value;
-            
-            // Validasi
-            if (!name || !email || !password || !passwordConfirm) {
-                alert('⚠️ Silakan isi semua field!');
-                return;
-            }
-            
-            if (password !== passwordConfirm) {
-                alert('⚠️ Password tidak cocok!');
-                return;
-            }
-            
-            if (password.length < 8) {
-                alert('⚠️ Password minimal 8 karakter!');
-                return;
-            }
-            
-            // Simulasi registrasi
-            alert(`✅ Registrasi berhasil!\n\nNama: ${name}\nEmail: ${email}\n\nSelamat datang di DigiStart!`);
-            closeRegisterModal();
-            emailRegisterForm.reset();
-        });
-    }
-});
+   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+   const isLoggedIn = localStorage.getItem('digistart-logged-in') === 'true';
 
-// Close modal when clicking outside
-document.addEventListener('DOMContentLoaded', function() {
-    const loginModal = document.getElementById('loginModal');
-    const registerModal = document.getElementById('registerModal');
-    
-    if (loginModal) {
-        loginModal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeLoginModal();
-            }
-        });
-    }
-    
-    if (registerModal) {
-        registerModal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeRegisterModal();
-            }
-        });
-    }
+   if (currentPage === 'storefront.html') {
+       if (!isLoggedIn) {
+           window.location.href = 'index.html';
+           return;
+       }
+
+       setAuthState(true);
+       renderStorefrontProducts();
+
+       const searchInput = document.getElementById('productSearch');
+       if (searchInput) {
+           searchInput.addEventListener('input', (event) => {
+               const selectedFilter = document.querySelector('.store-nav-item.active')?.dataset.filter || 'all';
+               renderStorefrontProducts(selectedFilter, event.target.value);
+           });
+       }
+
+       document.querySelectorAll('.store-nav-item').forEach((button) => {
+           button.addEventListener('click', () => {
+               document.querySelectorAll('.store-nav-item').forEach((item) => item.classList.remove('active'));
+               button.classList.add('active');
+               renderStorefrontProducts(button.dataset.filter, document.getElementById('productSearch')?.value || '');
+           });
+       });
+
+       const logoutButton = document.getElementById('logoutBtn');
+       if (logoutButton) {
+           logoutButton.addEventListener('click', () => {
+               localStorage.removeItem('digistart-logged-in');
+               setAuthState(false);
+               window.location.href = 'index.html';
+           });
+       }
+
+       return;
+   }
+
+   if (currentPage === 'login.html') {
+       if (isLoggedIn) {
+           window.location.href = 'storefront.html';
+           return;
+       }
+   }
+
+   if (currentPage === 'index.html' && isLoggedIn) {
+       window.location.href = 'storefront.html';
+       return;
+   }
+
+   const loginForm = document.getElementById('loginForm');
+   if (loginForm) {
+       loginForm.addEventListener('submit', function(e) {
+           e.preventDefault();
+           const email = document.getElementById('loginEmail').value.trim();
+           const password = document.getElementById('loginPassword').value.trim();
+
+           if (!email || !password) {
+               alert('⚠️ Silakan isi semua field!');
+               return;
+           }
+
+           localStorage.setItem('digistart-logged-in', 'true');
+           alert(`✅ Login berhasil!\n\nEmail/HP: ${email}\n\nSelamat datang!`);
+           loginForm.reset();
+           window.location.href = 'storefront.html';
+       });
+   }
+
+   const registerForm = document.getElementById('registerForm');
+   if (registerForm) {
+       registerForm.addEventListener('submit', function(e) {
+           e.preventDefault();
+           const name = document.getElementById('registerName').value.trim();
+           const email = document.getElementById('registerEmail').value.trim();
+           const phone = document.getElementById('registerPhone').value.trim();
+           const password = document.getElementById('registerPassword').value.trim();
+
+           if (!name || !email || !phone || !password) {
+               alert('⚠️ Silakan isi semua field!');
+               return;
+           }
+
+           localStorage.setItem('digistart-logged-in', 'true');
+           alert(`✅ Registrasi berhasil!\n\nNama: ${name}\nEmail: ${email}\n\nSelamat datang di DigiStart!`);
+           registerForm.reset();
+           window.location.href = 'storefront.html';
+       });
+   }
+
+   const loginModal = document.getElementById('loginModal');
+   const registerModal = document.getElementById('registerModal');
+
+   if (loginModal) {
+       loginModal.addEventListener('click', function(e) {
+           if (e.target === this) {
+               closeLoginModal();
+           }
+       });
+   }
+
+   if (registerModal) {
+       registerModal.addEventListener('click', function(e) {
+           if (e.target === this) {
+               closeRegisterModal();
+           }
+       });
+   }
+
+   setTimeout(() => {
+       const chatMessages = document.getElementById('chatMessages');
+       if (chatMessages && typeof addChatMessage === 'function') {
+           addChatMessage(getRandomResponse(chatbotResponses.greeting), 'ai-message');
+       }
+   }, 500);
 });
