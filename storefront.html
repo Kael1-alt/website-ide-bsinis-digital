@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storefront - Kaelstore</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="storefront">
+    <div id="storefrontView" class="storefront-view">
+        <header class="store-header">
+            <div class="store-topbar">
+                <div class="brand-block">
+                    <div class="brand-mark">D</div>
+                    <div>
+                        <div class="brand-name">Kaelstore</div>
+                        <div class="brand-subtitle">Marketplace</div>
+                    </div>
+                </div>
+
+                <label class="store-search" aria-label="Cari produk">
+                    <span>🔎</span>
+                    <input id="productSearch" type="text" placeholder="Cari produk, seller, atau kategori...">
+                </label>
+
+                <div class="store-actions">
+                    <button class="mini-btn" type="button">Keranjang</button>
+                    <button id="logoutBtn" class="primary-btn" type="button">Logout</button>
+                </div>
+            </div>
+
+            <nav class="store-nav" aria-label="Kategori produk">
+                <button class="store-nav-item active" type="button" data-filter="all">Semua</button>
+                <button class="store-nav-item" type="button" data-filter="electronics">Elektronik</button>
+                <button class="store-nav-item" type="button" data-filter="fashion">Fashion</button>
+                <button class="store-nav-item" type="button" data-filter="home">Rumah</button>
+                <button class="store-nav-item" type="button" data-filter="beauty">Kecantikan</button>
+                <button class="store-nav-item" type="button" data-filter="books">Buku</button>
+            </nav>
+        </header>
+
+        <main class="store-main">
+            <section class="store-hero">
+                <div class="hero-copy">
+                    <span class="promo-badge">Promo Hari Ini</span>
+                    <h1>Temukan produk terbaik untuk bisnis dan gaya hidupmu.</h1>
+                    <p>Mulai dari gadget, fashion, home essentials, sampai kebutuhan digital untuk mengembangkan usaha Anda.</p>
+                    <div class="hero-actions">
+                        <button class="primary-btn large" type="button">Belanja Sekarang</button>
+                        <button class="secondary-btn large" type="button">Lihat Promo</button>
+                    </div>
+                    <div class="hero-metrics">
+                        <div>
+                            <strong>120K+</strong>
+                            <span>Produk</span>
+                        </div>
+                        <div>
+                            <strong>4.9/5</strong>
+                            <span>Rating</span>
+                        </div>
+                        <div>
+                            <strong>24 Jam</strong>
+                            <span>Pengiriman</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-visual">
+                    <div class="visual-card large">
+                        <span>💻</span>
+                        <div>
+                            <small>Hot Deal</small>
+                            <strong>Laptop Pro 14&quot;</strong>
+                            <p>Rp 12.990.000</p>
+                        </div>
+                    </div>
+                    <div class="visual-card small">
+                        <span>🎧</span>
+                        <div>
+                            <small>New Arrival</small>
+                            <strong>AirPods Max Lite</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div id="productGrid" class="product-grid"></div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -7,14 +7,17 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="publicApp" class="public-app">
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="logo">💼 DigiStart</div>
+            <div class="logo">💼 Kaelstore</div>
             <ul class="nav-menu">
                 <li><a href="#home" class="nav-link">Beranda</a></li>
                 <li><a href="#about" class="nav-link">Tentang</a></li>
                 <li><a href="#ideas" class="nav-link">Ide Bisnis</a></li>
+                <li><a href="#business-catalog" class="nav-link">Rekomendasi</a></li>
+                <li><a href="#salary-calculator" class="nav-link">Kalkulator Gaji</a></li>
                 <li><a href="#creator" class="nav-link">Pembuat</a></li>
                 <li><a href="#contact" class="nav-link">Kontak</a></li>
                 <li><a href="#" class="nav-link" onclick="openLoginModal()">Login</a></li>
@@ -116,6 +119,67 @@
             <h2>Siap Memulai Perjalanan Digital Anda?</h2>
             <p>Bergabunglah dengan ribuan entrepreneur yang telah sukses</p>
             <button class="cta-button-large" onclick="openRegisterModal()">Daftar Gratis Sekarang</button>
+        </div>
+    </section>
+
+    <!-- Business Ideas Catalog -->
+    <section class="business-catalog-section" id="business-catalog">
+        <div class="container">
+            <div class="section-title">
+                <h2>📚 Koleksi Ide Bisnis</h2>
+                <div class="title-underline"></div>
+            </div>
+            <div class="catalog-intro">
+                <p>Pilih peluang yang sesuai dengan keahlian, modal, dan gaya kerja Anda.</p>
+                <select id="businessCategoryFilter" aria-label="Filter kategori ide bisnis">
+                    <option value="all">Semua kategori</option>
+                    <option value="digital">Digital</option>
+                    <option value="jasa">Jasa</option>
+                    <option value="produk">Produk</option>
+                    <option value="edukasi">Edukasi</option>
+                </select>
+            </div>
+            <div class="business-catalog-grid" id="businessCatalogGrid"></div>
+        </div>
+    </section>
+
+    <!-- Salary Calculator Section -->
+    <section class="salary-section" id="salary-calculator">
+        <div class="container">
+            <div class="section-title">
+                <h2>🧮 Kalkulator Gaji & Anggaran</h2>
+                <div class="title-underline"></div>
+            </div>
+            <div class="salary-content">
+                <form class="salary-form" id="salaryForm">
+                    <h3>Perkirakan pajak dan pembagian gaji</h3>
+                    <div class="form-group">
+                        <label for="salaryAmount">Pendapatan per bulan (Rp)</label>
+                        <input type="number" id="salaryAmount" min="0" step="1000" placeholder="Contoh: 10000000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="salaryType">Jenis pendapatan</label>
+                        <select id="salaryType">
+                            <option value="net">Pendapatan bersih (setelah potongan)</option>
+                            <option value="gross">Pendapatan kotor (sebelum pajak)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="salaryRegion">Wilayah domisili</label>
+                        <select id="salaryRegion">
+                            <option value="jawa">Jawa & Bali (estimasi 5%)</option>
+                            <option value="sumatera">Sumatera (estimasi 4%)</option>
+                            <option value="kalimantan">Kalimantan & Sulawesi (estimasi 3%)</option>
+                            <option value="papua">Maluku, Nusa Tenggara & Papua (estimasi 2%)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="ai-btn">Hitung Anggaran</button>
+                    <p class="calculator-note">Pajak wilayah adalah simulasi sederhana untuk perencanaan, bukan perhitungan pajak resmi.</p>
+                </form>
+                <div class="salary-result" id="salaryResult" aria-live="polite">
+                    <p class="salary-placeholder">Masukkan pendapatan untuk melihat estimasi Anda.</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -221,7 +285,7 @@
                     <p class="creator-title">Digital Entrepreneur & Platform Developer</p>
                     <div class="creator-bio">
                         <p>Seorang entrepreneur muda yang bersemangat dalam mengembangkan solusi digital inovatif. Dengan pengalaman lebih dari 5 tahun di industri teknologi dan bisnis digital, saya menciptakan platform ini untuk membantu ribuan individu menemukan peluang bisnis mereka di era digital.</p>
-                        <p>Platform DigiStart dirancang dengan tujuan untuk memberdayakan entrepreneur pemula maupun berpengalaman dalam mengidentifikasi, merencanakan, dan melaksanakan ide bisnis digital mereka dengan lebih mudah dan efisien.</p>
+                        <p>Platform Kaelstore dirancang dengan tujuan untuk memberdayakan entrepreneur pemula maupun berpengalaman dalam mengidentifikasi, merencanakan, dan melaksanakan ide bisnis digital mereka dengan lebih mudah dan efisien.</p>
                     </div>
                     <div class="creator-stats">
                         <div class="creator-stat">
@@ -318,9 +382,9 @@
             </div>
             <div class="modal-body">
                 <div class="register-tabs">
-                    <button class="tab-btn active" onclick="switchRegisterTab('phone')">📱 Nomor HP</button>
-                    <button class="tab-btn" onclick="switchRegisterTab('email')">📧 Email</button>
-                    <button class="tab-btn" onclick="switchRegisterTab('google')">🔍 Google</button>
+                    <button class="tab-btn active" data-tab="phone" onclick="switchRegisterTab('phone', this)">📱 Nomor HP</button>
+                    <button class="tab-btn" data-tab="email" onclick="switchRegisterTab('email', this)">📧 Email</button>
+                    <button class="tab-btn" data-tab="google" onclick="switchRegisterTab('google', this)">🔍 Google</button>
                 </div>
 
                 <!-- Phone Registration -->
@@ -401,15 +465,151 @@
                 </div>
                 <div class="footer-section">
                     <h4>Kontak</h4>
-                    <p>Email: info@digistart.com</p>
+                    <p>Email: info@kaelstore.com</p>
                     <p>Phone: +62 123 4567 890</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 DigiStart | Inspirasi untuk Entrepreneur Masa Depan | Semua Hak Dilindungi</p>
+                <p>&copy; 2024 Kaelstore | Inspirasi untuk Entrepreneur Masa Depan | Semua Hak Dilindungi</p>
             </div>
         </div>
     </footer>
+    </div>
+
+    <div id="storefrontView" class="storefront-view hidden">
+        <header class="store-header">
+            <div class="store-topbar">
+                <div class="brand-block">
+                    <div class="brand-mark">D</div>
+                    <div>
+                        <div class="brand-name">DigiStore</div>
+                        <div class="brand-subtitle">Marketplace produk digital</div>
+                    </div>
+                </div>
+
+                <label class="store-search" aria-label="Cari produk">
+                    <span>🔎</span>
+                    <input type="text" id="productSearch" placeholder="Cari produk atau brand...">
+                </label>
+
+                <div class="store-actions">
+                    <button class="mini-btn" type="button">Wishlist</button>
+                    <button class="mini-btn" type="button">Keranjang (2)</button>
+                    <button class="primary-btn" id="logoutBtn" type="button">Logout</button>
+                </div>
+            </div>
+
+            <nav class="store-nav">
+                <button class="store-nav-item active" type="button" data-filter="all">Semua</button>
+                <button class="store-nav-item" type="button" data-filter="electronics">Elektronik</button>
+                <button class="store-nav-item" type="button" data-filter="fashion">Fashion</button>
+                <button class="store-nav-item" type="button" data-filter="home">Rumah</button>
+                <button class="store-nav-item" type="button" data-filter="beauty">Kecantikan</button>
+                <button class="store-nav-item" type="button" data-filter="books">Buku</button>
+            </nav>
+        </header>
+
+        <main class="store-main">
+            <section class="store-hero">
+                <div class="hero-copy">
+                    <span class="promo-badge">Flash Sale 48 Jam</span>
+                    <h1>Jual beli produk pilihan dengan pengalaman belanja yang modern.</h1>
+                    <p>Temukan brand favorit, dukung UMKM lokal, dan nikmati promo spesial setiap hari di DigiStore.</p>
+                    <div class="hero-actions">
+                        <button class="primary-btn large" type="button">Belanja Sekarang</button>
+                        <button class="secondary-btn large" type="button">Jual Produk</button>
+                    </div>
+                    <div class="hero-metrics">
+                        <div>
+                            <strong>18K+</strong>
+                            <span>Produk</span>
+                        </div>
+                        <div>
+                            <strong>4.9/5</strong>
+                            <span>Rating</span>
+                        </div>
+                        <div>
+                            <strong>1.2M</strong>
+                            <span>Pengunjung</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-visual">
+                    <div class="showcase-card large-card">
+                        <span class="card-lable">Best Seller</span>
+                        <div class="showcase-emoji">🎧</div>
+                        <h3>Noise Cancelling Pro</h3>
+                        <p>Rp 2.499.000</p>
+                    </div>
+                    <div class="mini-card-stack">
+                        <div class="showcase-card small-card top">
+                            <span class="card-lable">New Arrival</span>
+                            <div class="showcase-emoji">👟</div>
+                            <h3>Urban Step</h3>
+                            <p>Rp 859.000</p>
+                        </div>
+                        <div class="showcase-card small-card bottom">
+                            <span class="card-lable">Trending</span>
+                            <div class="showcase-emoji">🧴</div>
+                            <h3>Glow Ritual</h3>
+                            <p>Rp 249.000</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="promo-row">
+                <div class="promo-banner orange">
+                    <span>Gratis Ongkir</span>
+                    <strong>Untuk pembelian di atas Rp 300 ribu</strong>
+                </div>
+                <div class="promo-banner purple">
+                    <span>Cashback 10%</span>
+                    <strong>Untuk pelanggan baru setiap weekend</strong>
+                </div>
+            </section>
+
+            <section class="market-section">
+                <div class="section-title-row">
+                    <div>
+                        <span class="eyebrow">Produk unggulan</span>
+                        <h2>Temukan yang paling cocok untuk Anda</h2>
+                    </div>
+                    <button class="secondary-btn" type="button">Lihat semua</button>
+                </div>
+
+                <div id="productGrid" class="product-grid"></div>
+            </section>
+
+            <section class="seller-story">
+                <div class="story-copy">
+                    <span class="eyebrow">Mulai jualan hari ini</span>
+                    <h2>Bangun toko Anda sendiri tanpa ribet</h2>
+                    <p>Kelola produk, transaksi, dan pelanggan hanya dari satu dashboard. Cocok untuk UMKM, creator, dan brand digital.</p>
+                    <ul>
+                        <li>Dashboard penjualan real-time</li>
+                        <li>Promo otomatis untuk pelanggan baru</li>
+                        <li>Integrasi pembayaran cepat dan aman</li>
+                    </ul>
+                </div>
+                <div class="story-panel">
+                    <div class="story-stat">
+                        <strong>Rp 42.8Jt</strong>
+                        <span>Omzet bulan ini</span>
+                    </div>
+                    <div class="story-stat">
+                        <strong>3.4K</strong>
+                        <span>Pesanan sukses</span>
+                    </div>
+                    <div class="story-stat">
+                        <strong>97%</strong>
+                        <span>Customer satisfaction</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
 
     <script src="script.js"></script>
 </body>
