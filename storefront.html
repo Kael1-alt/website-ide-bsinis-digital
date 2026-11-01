@@ -24,34 +24,64 @@
                 </label>
 
                 <div class="store-actions">
-                    <button class="mini-btn" type="button">Keranjang</button>
+                    <button id="wishlistToggle" class="mini-btn" type="button">Wishlist <span id="wishlistCount">0</span></button>
+                    <button id="cartToggle" class="mini-btn" type="button">Keranjang <span id="cartCount">0</span></button>
+                    <a id="accountLink" class="mini-btn" href="account.html">Akun Saya</a>
+                    <a id="adminOrdersLink" class="mini-btn" href="orders-admin.html" hidden>Admin Pesanan</a>
                     <button id="logoutBtn" class="primary-btn" type="button">Logout</button>
                 </div>
             </div>
 
+            <div class="category-strip" aria-label="Kategori favorit">
+                <button class="category-pill active" type="button" data-filter="all">
+                    <span class="category-icon">🛍️</span>
+                    <span>Semua</span>
+                </button>
+                <button class="category-pill" type="button" data-filter="sayur">
+                    <span class="category-icon">🥬</span>
+                    <span>Sayur</span>
+                </button>
+                <button class="category-pill" type="button" data-filter="buah">
+                    <span class="category-icon">🍊</span>
+                    <span>Buah</span>
+                </button>
+                <button class="category-pill" type="button" data-filter="frozen">
+                    <span class="category-icon">🧊</span>
+                    <span>Frozen</span>
+                </button>
+                <button class="category-pill" type="button" data-filter="daging">
+                    <span class="category-icon">🥩</span>
+                    <span>Daging</span>
+                </button>
+                <button class="category-pill" type="button" data-filter="rumah">
+                    <span class="category-icon">🏠</span>
+                    <span>Rumah</span>
+                </button>
+            </div>
+
             <nav class="store-nav" aria-label="Kategori produk">
                 <button class="store-nav-item active" type="button" data-filter="all">Semua</button>
-                <button class="store-nav-item" type="button" data-filter="electronics">Elektronik</button>
-                <button class="store-nav-item" type="button" data-filter="fashion">Fashion</button>
-                <button class="store-nav-item" type="button" data-filter="home">Rumah</button>
-                <button class="store-nav-item" type="button" data-filter="beauty">Kecantikan</button>
-                <button class="store-nav-item" type="button" data-filter="books">Buku</button>
+                <button class="store-nav-item" type="button" data-filter="sayur">Sayur</button>
+                <button class="store-nav-item" type="button" data-filter="buah">Buah</button>
+                <button class="store-nav-item" type="button" data-filter="frozen">Frozen</button>
+                <button class="store-nav-item" type="button" data-filter="daging">Daging</button>
+                <button class="store-nav-item" type="button" data-filter="rumah">Kebutuhan Rumah</button>
             </nav>
         </header>
 
         <main class="store-main">
             <section class="store-hero">
                 <div class="hero-copy">
-                    <span class="promo-badge">Promo Hari Ini</span>
-                    <h1>Temukan produk terbaik untuk bisnis dan gaya hidupmu.</h1>
-                    <p>Mulai dari gadget, fashion, home essentials, sampai kebutuhan digital untuk mengembangkan usaha Anda.</p>
+                    <span class="promo-badge">Promo Lokal Terbaik</span>
+                    <h1>Belanja kebutuhan harian lebih praktis dan lebih hemat.</h1>
+                    <p>Sayur segar, buah premium, daging pilihan, frozen, dan kebutuhan rumah tangga siap dikirim cepat ke rumah Anda.</p>
                     <div class="hero-actions">
                         <button class="primary-btn large" type="button">Belanja Sekarang</button>
                         <button class="secondary-btn large" type="button">Lihat Promo</button>
                     </div>
                     <div class="hero-metrics">
                         <div>
-                            <strong>120K+</strong>
+                            <strong>18K+</strong>
                             <span>Produk</span>
                         </div>
                         <div>
@@ -59,34 +89,197 @@
                             <span>Rating</span>
                         </div>
                         <div>
-                            <strong>24 Jam</strong>
+                            <strong>2 Jam</strong>
                             <span>Pengiriman</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="hero-visual">
-                    <div class="visual-card large">
-                        <span>💻</span>
-                        <div>
-                            <small>Hot Deal</small>
-                            <strong>Laptop Pro 14&quot;</strong>
-                            <p>Rp 12.990.000</p>
+                    <div class="showcase-card large-card spotlight-card">
+                        <span class="card-lable">Hot Deal</span>
+                        <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80" alt="Bundle sayur dan buah segar" />
+                        <div class="spotlight-copy">
+                            <h3>Bundle Sayur & Buah</h3>
+                            <p>Rp 149.000</p>
                         </div>
                     </div>
-                    <div class="visual-card small">
-                        <span>🎧</span>
-                        <div>
-                            <small>New Arrival</small>
-                            <strong>AirPods Max Lite</strong>
+
+                    <div class="mini-card-stack">
+                        <div class="showcase-card small-card">
+                            <span class="card-lable">Fresh Pick</span>
+                            <img src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=900&q=80" alt="Produk daging segar" />
+                            <h3>Ayam Segar</h3>
+                        </div>
+                        <div class="showcase-card small-card">
+                            <span class="card-lable">Flash Sale</span>
+                            <img src="https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=900&q=80" alt="Ikan frozen premium" />
+                            <h3>Salmon Premium</h3>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <div id="productGrid" class="product-grid"></div>
+            <div class="promo-row wide-promo-row">
+                <div class="promo-banner promo-large promo-orange">
+                    <div>
+                        <span>Promo Spesial Hari Ini</span>
+                        <strong>Diskon sampai 50% kebutuhan rumah & dapur</strong>
+                    </div>
+                    <small>Sayur segar, buah, daging, frozen, dan kebutuhan rumah tangga</small>
+                </div>
+                <div class="promo-banner promo-small promo-cream">
+                    <span>Cashback 20%</span>
+                    <strong>Paket Hemat Mingguan</strong>
+                    <small>Belanja kebutuhan rumah & kopi santai</small>
+                </div>
+            </div>
+
+            <section class="market-section">
+                <div class="section-title-row">
+                    <div>
+                        <span class="eyebrow">Rekomendasi</span>
+                        <h2>Produk Terbaik Hari Ini</h2>
+                    </div>
+                    <div class="section-tools">
+                        <select id="sortProducts" class="sort-select" aria-label="Urutkan produk">
+                            <option value="featured">Paling laris</option>
+                            <option value="price-asc">Harga terendah</option>
+                            <option value="price-desc">Harga tertinggi</option>
+                            <option value="rating">Rating terbaik</option>
+                        </select>
+                        <button class="secondary-btn small" type="button">Lihat Semua</button>
+                    </div>
+                </div>
+                <div id="productGrid" class="product-grid"></div>
+            </section>
+
+            <aside id="cartDrawer" class="cart-drawer" aria-label="Keranjang belanja">
+                <div class="cart-header">
+                    <h3>Keranjang Saya</h3>
+                    <button class="cart-close" type="button" id="closeCartDrawer">✕</button>
+                </div>
+                <div id="cartItems" class="cart-items"></div>
+                <div class="cart-footer">
+                    <div class="cart-total-row">
+                        <span>Total</span>
+                        <strong id="cartTotal">Rp 0</strong>
+                    </div>
+                    <button class="primary-btn" id="checkoutBtn" type="button">Lanjut Pembayaran</button>
+                </div>
+            </aside>
+
+            <div class="checkout-modal" id="checkoutModal" aria-hidden="true">
+                <div class="checkout-panel" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+                    <div class="checkout-header">
+                        <div>
+                            <span class="eyebrow">Checkout aman</span>
+                            <h2 id="checkoutTitle">Selesaikan Pesanan</h2>
+                        </div>
+                        <button class="cart-close" id="closeCheckout" type="button" aria-label="Tutup checkout">✕</button>
+                    </div>
+                    <form id="checkoutForm" class="checkout-form">
+                        <label>
+                            Nama penerima
+                            <input id="checkoutName" type="text" required placeholder="Nama lengkap">
+                        </label>
+                        <label>
+                            Nomor WhatsApp
+                            <input id="checkoutPhone" type="tel" required placeholder="08xxxxxxxxxx">
+                        </label>
+                        <label>
+                            Pilihan pengiriman
+                            <select id="shippingMethod" required>
+                                <option value="Reguler">Reguler · 1-2 hari · Gratis</option>
+                                <option value="Express">Express · Hari ini · Rp 15.000</option>
+                            </select>
+                        </label>
+                        <label class="checkout-full">
+                            Alamat pengiriman
+                            <textarea id="checkoutAddress" required rows="3" placeholder="Jalan, nomor rumah, kecamatan, kota"></textarea>
+                        </label>
+                        <fieldset class="checkout-full payment-fieldset">
+                            <legend>Metode pembayaran</legend>
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="cod" checked>
+                                <span><strong>COD</strong><small>Bayar saat pesanan sampai</small></span>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="qris">
+                                <span><strong>QRIS</strong><small>Scan dengan aplikasi bank atau e-wallet</small></span>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="ewallet">
+                                <span><strong>E-wallet</strong><small>GoPay atau ShopeePay melalui Midtrans</small></span>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="paylater">
+                                <span><strong>PayLater</strong><small>Kredivo atau Akulaku (sesuai aktivasi merchant)</small></span>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="transfer">
+                                <span><strong>Transfer Bank</strong><small>Virtual Account bank yang tersedia di Midtrans</small></span>
+                            </label>
+                        </fieldset>
+                        <div class="checkout-summary checkout-full">
+                            <span>Total pembayaran</span>
+                            <strong id="checkoutTotal">Rp 0</strong>
+                        </div>
+                        <button class="primary-btn checkout-submit checkout-full" type="submit">Buat Pesanan</button>
+                        <p class="checkout-note checkout-full"><strong>Demo lokal.</strong> Belum terhubung ke payment gateway production; pembayaran Midtrans saat ini hanya sandbox dan tidak memotong uang sungguhan. Kurir sungguhan belum terhubung.</p>
+                    </form>
+                </div>
+            </div>
+
+            <div class="order-modal" id="orderModal" aria-hidden="true">
+                <div class="order-panel" role="dialog" aria-modal="true" aria-labelledby="orderTitle">
+                    <div class="order-success-mark">✓</div>
+                    <span class="eyebrow">Pesanan berhasil dibuat</span>
+                    <h2 id="orderTitle">Terima kasih, pesananmu sedang diproses.</h2>
+                    <p id="orderNumber"></p>
+                    <div class="order-timeline">
+                        <div class="timeline-step active"><span>1</span><strong>Pembayaran</strong><small id="paymentStatus">Menunggu proses</small></div>
+                        <div class="timeline-step active"><span>2</span><strong>Diproses seller</strong><small>Pesanan diterima</small></div>
+                        <div class="timeline-step"><span>3</span><strong>Dikirim</strong><small>Kurir akan mengambil paket</small></div>
+                        <div class="timeline-step"><span>4</span><strong>Sampai tujuan</strong><small>Estimasi 1-2 hari</small></div>
+                    </div>
+                    <button class="primary-btn" id="closeOrder" type="button">Kembali Belanja</button>
+                </div>
+            </div>
+
+            <section class="seller-story">
+                <div class="story-copy">
+                    <span class="eyebrow">Kenapa Kaelstore</span>
+                    <h2>Marketplace yang membantu bisnis tumbuh lebih cepat.</h2>
+                    <p>Kaelstore menghadirkan pengalaman belanja yang aman, cepat, dan terpercaya bagi pelanggan sekaligus penjual. Dengan sistem yang sederhana dan dukungan penuh, kami membuat setiap transaksi lebih mudah dijalankan.</p>
+                    <ul>
+                        <li>Produk terkurasi dengan kualitas terjamin</li>
+                        <li>Pengiriman cepat dan dukungan pelanggan aktif</li>
+                        <li>Ribuan pilihan produk untuk kebutuhan harian dan bisnis</li>
+                    </ul>
+                </div>
+                <div class="story-panel">
+                    <div class="story-stat">
+                        <span>Penjual aktif</span>
+                        <strong>8.4K</strong>
+                    </div>
+                    <div class="story-stat">
+                        <span>Rating pelanggan</span>
+                        <strong>4.9/5</strong>
+                    </div>
+                    <div class="story-stat">
+                        <span>Pengiriman sukses</span>
+                        <strong>96%</strong>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
+
+    <button class="floating-cart-btn" id="floatingCartBtn" type="button" aria-label="Lihat keranjang">
+        🛒 <span id="floatingCartCount">0</span>
+    </button>
+    <div class="floating-promo-badge">Promo 50%</div>
 
     <script src="script.js"></script>
 </body>

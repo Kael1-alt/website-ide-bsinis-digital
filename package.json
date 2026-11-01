@@ -1,0 +1,13 @@
+{
+  "name": "kaelstore-payment-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kaelstore static storefront with a Midtrans and SQLite payment backend",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node payment-server.js",
+    "test": "node --test payment-server.test.js"
+  }
+}

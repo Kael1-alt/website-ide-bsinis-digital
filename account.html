@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akun Saya - Kaelstore</title>
+    <link rel="stylesheet" href="orders-admin.css">
+    <link rel="stylesheet" href="account.css">
+</head>
+<body>
+    <main class="admin-shell">
+        <header class="admin-header">
+            <div>
+                <p class="eyebrow">Kaelstore · Marketplace</p>
+                <h1 id="accountTitle">Akun Saya</h1>
+                <p id="accountSubtitle">Memuat akun...</p>
+            </div>
+            <div class="toolbar-actions">
+                <a class="back-link" href="storefront.html">Belanja</a>
+                <button id="logoutButton" class="secondary-button" type="button">Keluar</button>
+            </div>
+        </header>
+
+        <section id="accountPanel" class="panel">
+            <p id="accountMessage" class="message" role="status">Memuat data...</p>
+            <div id="accountContent"></div>
+        </section>
+    </main>
+    <script src="account.js"></script>
+</body>
+</html>

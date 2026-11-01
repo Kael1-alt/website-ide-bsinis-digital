@@ -1,0 +1,101 @@
+:root {
+    color-scheme: light;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    color: #17211b;
+    background: #f3f5f2;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; }
+
+button, input, select { font: inherit; }
+
+.admin-shell {
+    width: min(1280px, calc(100% - 32px));
+    margin: 48px auto;
+}
+
+.admin-header, .toolbar, .toolbar-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.admin-header { margin-bottom: 28px; }
+
+.admin-header h1 { margin: 4px 0 8px; font-size: clamp(2rem, 5vw, 3rem); }
+
+.admin-header p, .toolbar p { color: #66716a; }
+
+.eyebrow {
+    margin: 0;
+    color: #276344 !important;
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.back-link { color: #276344; font-weight: 700; }
+
+.panel {
+    padding: 24px;
+    border: 1px solid #e1e7e2;
+    border-radius: 18px;
+    background: white;
+    box-shadow: 0 14px 40px #173a2510;
+}
+
+.login-panel { max-width: 460px; }
+
+.login-panel form { display: grid; gap: 10px; }
+
+input, select {
+    min-width: 150px;
+    padding: 10px 12px;
+    border: 1px solid #cbd6ce;
+    border-radius: 9px;
+    background: white;
+}
+
+button {
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 9px;
+    color: white;
+    background: #276344;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+button:disabled { opacity: .6; cursor: wait; }
+
+.secondary-button { color: #276344; background: #eaf3ed; }
+
+.message { min-height: 1.2em; color: #a33b2f; }
+
+.table-wrap { overflow-x: auto; margin-top: 16px; }
+
+table { width: 100%; border-collapse: collapse; text-align: left; }
+
+th, td { padding: 13px 12px; border-bottom: 1px solid #e8ede9; vertical-align: top; }
+
+th { color: #5d6b62; font-size: .78rem; text-transform: uppercase; }
+
+td { font-size: .9rem; }
+
+td small { display: block; margin-top: 5px; color: #66716a; }
+
+.order-id { font-weight: 800; white-space: nowrap; }
+
+.status { font-weight: 700; text-transform: capitalize; }
+
+.empty-row { padding: 28px; text-align: center; color: #66716a; }
+
+@media (max-width: 700px) {
+    .admin-shell { margin: 24px auto; }
+    .admin-header, .toolbar { align-items: flex-start; flex-direction: column; }
+    .toolbar-actions { width: 100%; }
+}

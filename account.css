@@ -1,0 +1,38 @@
+.account-section { margin-top: 26px; }
+
+.account-section h2 { margin: 0 0 12px; }
+
+.account-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+}
+
+.account-card {
+    padding: 16px;
+    border: 1px solid #e8ede9;
+    border-radius: 12px;
+    background: #fbfdfb;
+}
+
+.account-card p { margin: 5px 0; color: #66716a; }
+
+.account-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 12px; }
+
+.account-actions button { padding: 8px 11px; }
+
+.account-status { color: #276344; font-weight: 800; text-transform: capitalize; }
+
+.table-wrap select { min-width: 130px; }
+
+.seller-request { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+
+.seller-request-actions { display: flex; gap: 8px; }
+
+.danger-button { background: #a33b2f; }
+
+.muted { color: #66716a; }
+
+.revenue-card { margin: 14px 0; padding: 18px; border-radius: 12px; background: #eaf3ed; }
+
+.revenue-card strong { display: block; margin-top: 5px; font-size: 1.5rem; }

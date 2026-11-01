@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Pembayaran - Kaelstore</title>
+    <link rel="stylesheet" href="orders-admin.css">
+    <style>
+        .status-card { max-width: 620px; margin: 10vh auto; }
+        .status-card a { color: #276344; font-weight: 700; }
+        #paymentState { font-size: 1.2rem; font-weight: 800; }
+    </style>
+</head>
+<body>
+    <main class="panel status-card">
+        <p class="eyebrow">Kaelstore · Pembayaran</p>
+        <h1>Status pesanan</h1>
+        <p id="orderId"></p>
+        <p id="paymentState" role="status">Memeriksa status pembayaran...</p>
+        <p id="fulfillmentState"></p>
+        <p id="statusMessage">Status akan diperbarui otomatis setelah Midtrans mengirim konfirmasi.</p>
+        <a href="storefront.html">Kembali ke toko</a>
+    </main>
+    <script src="payment-status.js"></script>
+</body>
+</html>

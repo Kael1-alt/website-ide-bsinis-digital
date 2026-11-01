@@ -3,57 +3,585 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Login - Kaelstore</title>
-    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" href="login-style.css">
 </head>
+
 <body data-page="login" class="auth-page">
-    <div class="auth-shell">
-        <div class="auth-card">
+
+    <!-- BACKGROUND -->
+    <div class="aurora aurora-1"></div>
+    <div class="aurora aurora-2"></div>
+    <div class="aurora aurora-3"></div>
+
+    <div class="grid-overlay"></div>
+    <div class="noise"></div>
+
+    <!-- PARTICLES -->
+    <div id="particles"></div>
+
+
+    <!-- LOGIN -->
+    <main class="auth-shell">
+
+        <section class="auth-card">
+
+            <div class="card-glow"></div>
+
+
+            <!-- HEADER -->
             <div class="auth-header">
-                <div class="logo">💼 Kaelstore</div>
-                <h2>Masuk ke akun</h2>
+
+                <div class="brand">
+
+                    <span class="brand-icon">
+                        💼
+                    </span>
+
+                    <span>
+                        Kaelstore
+                    </span>
+
+                </div>
+
+
+                <div class="status">
+
+                    <span></span>
+
+                    SECURE ACCESS
+
+                </div>
+
+
+                <h1>
+                    Selamat Datang<span>.</span>
+                </h1>
+
+                <p>
+                    Masuk untuk melanjutkan ke platform Kaelstore.
+                </p>
+
             </div>
 
-            <form id="loginForm" class="auth-form">
+
+            <!-- LOGIN FORM -->
+            <form
+                id="loginForm"
+                class="auth-form"
+            >
+
                 <div class="form-group">
-                    <label for="loginEmail">Email atau Nomor HP</label>
-                    <input id="loginEmail" type="text" placeholder="Masukkan email atau nomor HP" required>
+
+                    <label for="loginEmail">
+                        Email atau Nomor HP
+                    </label>
+
+                    <div class="input-wrap">
+
+                        <span class="input-icon">
+                            ✉
+                        </span>
+
+                        <input
+                            id="loginEmail"
+                            type="text"
+                            placeholder="Masukkan email atau nomor HP"
+                            required
+                        >
+
+                    </div>
+
                 </div>
+
+
                 <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <input id="loginPassword" type="password" placeholder="Masukkan password" required>
+
+                    <div class="label-row">
+
+                        <label for="loginPassword">
+                            Password
+                        </label>
+
+                        <a
+                            href="#"
+                            class="forgot"
+                        >
+                            Lupa password?
+                        </a>
+
+                    </div>
+
+
+                    <div class="input-wrap">
+
+                        <span class="input-icon">
+                            ⌑
+                        </span>
+
+                        <input
+                            id="loginPassword"
+                            type="password"
+                            placeholder="Masukkan password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="eye"
+                            id="togglePassword"
+                        >
+                            ◉
+                        </button>
+
+                    </div>
+
                 </div>
-                <button type="submit" class="primary-btn large full-width">Login</button>
+
+
+                <!-- REMEMBER -->
+                <label class="remember">
+
+                    <input
+                        type="checkbox"
+                    >
+
+                    <span class="checkmark"></span>
+
+                    Ingat saya di perangkat ini
+
+                </label>
+
+
+                <!-- LOGIN BUTTON -->
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+
+                    <span>
+                        Masuk Sekarang
+                    </span>
+
+                    <b>
+                        →
+                    </b>
+
+                </button>
+
             </form>
 
-            <div class="auth-divider">ATAU</div>
+            <p class="demo-warning">Akun dan sesi login disimpan serta diverifikasi oleh server Kaelstore.</p>
 
-            <form id="registerForm" class="auth-form auth-form-alt">
-                <div class="form-group">
-                    <label for="registerName">Nama</label>
-                    <input id="registerName" type="text" placeholder="Nama lengkap" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerEmail">Email</label>
-                    <input id="registerEmail" type="email" placeholder="Email aktif" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerPhone">Nomor HP</label>
-                    <input id="registerPhone" type="tel" placeholder="Nomor HP" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerPassword">Password</label>
-                    <input id="registerPassword" type="password" placeholder="Buat password" required>
-                </div>
-                <button type="submit" class="secondary-btn large full-width">Daftar Sekarang</button>
-            </form>
 
-            <p class="auth-footer">
-                Kembali ke <a href="index.html">Beranda</a>
+            <!-- DIVIDER -->
+            <div class="auth-divider">
+
+                <span>
+                    ATAU
+                </span>
+
+            </div>
+
+
+            <!-- GOOGLE -->
+            <button
+                class="google-btn"
+                type="button"
+                id="googleLogin"
+            >
+
+                <span class="google-logo">
+                    G
+                </span>
+
+                Lanjutkan dengan Google
+
+            </button>
+
+
+            <!-- REGISTER -->
+            <p class="register-text">
+
+                Belum punya akun?
+
+                <a
+                    href="register.html"
+                    id="showRegister"
+                >
+                    Daftar sekarang
+                </a>
+
             </p>
-        </div>
-    </div>
 
-    <script src="script.js"></script>
+
+            <!-- REGISTER PANEL -->
+            <div
+                class="register-panel"
+                id="registerPanel"
+                hidden
+            >
+
+                <div class="panel-head">
+
+                    <div>
+
+                        <strong>
+                            Buat akun baru
+                        </strong>
+
+                        <small>
+                            Daftar gratis di Kaelstore
+                        </small>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="closeRegister"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <form
+                    id="registerForm"
+                    class="auth-form"
+                >
+
+                    <div class="form-group">
+
+                        <label for="registerName">
+                            Nama
+                        </label>
+
+                        <div class="input-wrap">
+
+                            <span class="input-icon">
+                                ◎
+                            </span>
+
+                            <input
+                                id="registerName"
+                                type="text"
+                                placeholder="Nama lengkap"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="registerEmail">
+                            Email
+                        </label>
+
+                        <div class="input-wrap">
+
+                            <span class="input-icon">
+                                ✉
+                            </span>
+
+                            <input
+                                id="registerEmail"
+                                type="email"
+                                placeholder="Email aktif"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="registerPhone">
+                            Nomor HP
+                        </label>
+
+                        <div class="input-wrap">
+
+                            <span class="input-icon">
+                                ☎
+                            </span>
+
+                            <input
+                                id="registerPhone"
+                                type="tel"
+                                placeholder="Nomor HP"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="registerPassword">
+                            Password
+                        </label>
+
+                        <div class="input-wrap">
+
+                            <span class="input-icon">
+                                ⌑
+                            </span>
+
+                            <input
+                                id="registerPassword"
+                                type="password"
+                                placeholder="Buat password"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="secondary-btn"
+                    >
+
+                        <span>
+                            Buat Akun
+                        </span>
+
+                        <b>
+                            →
+                        </b>
+
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- BACK -->
+            <p class="back-home">
+
+                <a href="index.html">
+                    ← Kembali ke Beranda
+                </a>
+
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <!-- TOAST -->
+    <div
+        class="toast"
+        id="toast"
+    ></div>
+
+
+<script>
+
+    /* ===============================
+       PARTICLES
+    =============================== */
+
+    const particleBox =
+        document.getElementById("particles");
+
+
+    for (let i = 0; i < 55; i++) {
+
+        const p =
+            document.createElement("i");
+
+        p.className =
+            "particle";
+
+        p.style.left =
+            Math.random() * 100 + "%";
+
+        p.style.top =
+            Math.random() * 100 + "%";
+
+        p.style.animationDelay =
+            Math.random() * 6 + "s";
+
+        p.style.animationDuration =
+            (4 + Math.random() * 7) + "s";
+
+        p.style.setProperty(
+            "--size",
+            (1 + Math.random() * 3) + "px"
+        );
+
+        particleBox.appendChild(p);
+
+    }
+
+
+    /* ===============================
+       PASSWORD
+    =============================== */
+
+    const password =
+        document.getElementById(
+            "loginPassword"
+        );
+
+    const togglePassword =
+        document.getElementById(
+            "togglePassword"
+        );
+
+
+    togglePassword.addEventListener(
+        "click",
+        () => {
+
+            const hidden =
+                password.type === "password";
+
+            password.type =
+                hidden ? "text" : "password";
+
+            togglePassword.textContent =
+                hidden ? "○" : "◉";
+
+        }
+    );
+
+
+    /* ===============================
+       TOAST
+    =============================== */
+
+    const toast =
+        document.getElementById("toast");
+
+
+    function showToast(message) {
+
+        toast.textContent =
+            message;
+
+        toast.classList.add("show");
+
+        setTimeout(() => {
+
+            toast.classList.remove("show");
+
+        }, 2600);
+
+    }
+
+
+    const sessionKey = "kaelstore-session";
+
+    /* ===============================
+       LOGIN
+    =============================== */
+
+    document
+        .getElementById("loginForm")
+        .addEventListener("submit", async e => {
+            e.preventDefault();
+            const button = e.currentTarget.querySelector('[type="submit"]');
+            button.disabled = true;
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        identifier: document.getElementById("loginEmail").value.trim(),
+                        password: document.getElementById("loginPassword").value
+                    })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || "Tidak dapat masuk.");
+                localStorage.setItem(sessionKey, JSON.stringify(result.user));
+                window.location.href = "account.html";
+            } catch (error) {
+                showToast(error instanceof TypeError
+                    ? "Server akun tidak terhubung. Buka halaman melalui server Kaelstore."
+                    : error.message);
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+    const registeredEmail = new URLSearchParams(window.location.search).get("registered");
+    if (registeredEmail) {
+        document.getElementById("loginEmail").value = registeredEmail;
+        showToast("Akun berhasil dibuat. Silakan masuk.");
+    }
+
+
+    /* ===============================
+       REGISTER
+    =============================== */
+
+    /* ===============================
+       GOOGLE
+    =============================== */
+
+    document
+        .getElementById("googleLogin")
+        .addEventListener(
+            "click",
+            () => showToast("Login Google belum tersedia. Gunakan email dan password.")
+        );
+
+
+    /* ===============================
+       MOUSE 3D EFFECT
+    =============================== */
+
+    document.addEventListener(
+        "mousemove",
+        e => {
+
+            const x =
+                (e.clientX / innerWidth - .5) * 2;
+
+            const y =
+                (e.clientY / innerHeight - .5) * 2;
+
+
+            document
+                .querySelector(".auth-card")
+                .style.transform =
+                `perspective(1200px)
+                 rotateY(${x * 2}deg)
+                 rotateX(${y * -2}deg)`;
+
+        }
+    );
+
+
+    document.addEventListener(
+        "mouseleave",
+        () => {
+
+            document
+                .querySelector(".auth-card")
+                .style.transform =
+                "perspective(1200px) rotateY(0deg) rotateX(0deg)";
+
+        }
+    );
+
+</script>
 </body>
 </html>

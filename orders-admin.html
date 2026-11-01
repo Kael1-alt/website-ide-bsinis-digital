@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Pesanan - Kaelstore</title>
+    <link rel="stylesheet" href="orders-admin.css">
+</head>
+<body>
+    <main class="admin-shell">
+        <header class="admin-header">
+            <div>
+                <p class="eyebrow">Kaelstore · Panel admin</p>
+                <h1>Kelola pesanan</h1>
+                <p>Lihat status pembayaran Midtrans dan perbarui proses pengiriman.</p>
+            </div>
+            <a class="back-link" href="storefront.html">Kembali ke toko</a>
+        </header>
+
+        <section id="loginPanel" class="panel login-panel">
+            <h2>Masuk sebagai admin</h2>
+            <form id="adminLoginForm">
+                <label for="adminPassword">Password admin</label>
+                <input id="adminPassword" name="password" type="password" required autocomplete="current-password">
+                <button type="submit">Masuk</button>
+            </form>
+            <p id="loginMessage" class="message" role="status"></p>
+        </section>
+
+        <section id="ordersPanel" class="panel" hidden>
+            <div class="toolbar">
+                <div>
+                    <h2>Daftar pesanan</h2>
+                    <p id="ordersMessage" class="message" role="status"></p>
+                </div>
+                <div class="toolbar-actions">
+                    <button id="refreshOrders" class="secondary-button" type="button">Muat ulang</button>
+                    <button id="adminLogout" class="secondary-button" type="button">Keluar</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pesanan</th>
+                            <th>Pelanggan</th>
+                            <th>Produk</th>
+                            <th>Pembayaran</th>
+                            <th>Pengiriman</th>
+                            <th>Total</th>
+                            <th>Dibuat</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <script src="orders-admin.js"></script>
+</body>
+</html>
