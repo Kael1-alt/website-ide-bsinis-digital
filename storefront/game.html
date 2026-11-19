@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Bisnis Digital</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body data-page="game">
+    <div class="public-app">
+      <nav class="navbar">
+        <div class="nav-container">
+          <div class="logo">💼 Kaelstore</div>
+          <ul class="nav-menu">
+            <li><a href="index.html" class="nav-link">Beranda</a></li>
+            <li><a href="index.html#about" class="nav-link">Tentang</a></li>
+            <li><a href="index.html#ideas" class="nav-link">Ide Bisnis</a></li>
+            <li>
+              <a href="index.html#business-catalog" class="nav-link"
+                >Rekomendasi</a
+              >
+            </li>
+            <li>
+              <a href="index.html#salary-calculator" class="nav-link"
+                >Kalkulator Gaji</a
+              >
+            </li>
+            <li><a href="game.html" class="nav-link">Game</a></li>
+            <li><a href="index.html#creator" class="nav-link">Pembuat</a></li>
+            <li><a href="index.html#contact" class="nav-link">Kontak</a></li>
+            <li>
+              <a href="login.html" class="nav-link login-nav-link">Login</a>
+            </li>
+            <li>
+              <a href="login.html" class="nav-link register-nav-link">Daftar</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main class="game-page-shell">
+        <section class="game-page-hero">
+          <div class="container game-page-hero-inner">
+            <div>
+              <p class="eyebrow dark">Business Simulation</p>
+              <h1>Simulasi Bisnis Digital 3D</h1>
+              <p>
+                Bangun startup, kelola pemasaran, dan buat bisnis tumbuh dengan
+                strategi yang tepat.
+              </p>
+            </div>
+            <div class="mini-promo">
+              <span>Live Market</span>
+              <strong id="gameStatus">Demand 35%</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="game-layout container">
+          <div class="game-console">
+            <div class="mode-switcher" aria-label="Mode permainan">
+              <button class="mode-btn active" type="button" data-mode="builder">
+                🏢 Builder
+              </button>
+              <button class="mode-btn" type="button" data-mode="quiz">
+                🧠 Quiz Bisnis
+              </button>
+              <button class="mode-btn" type="button" data-mode="battle">
+                ⚔️ Clicker Battle
+              </button>
+            </div>
+
+            <div class="game-mode-panel active" id="builderMode">
+              <div class="supermarket-sim">
+                <div class="sim-header">
+                  <div>
+                    <span class="sim-kicker">SIMULASI TOKO</span>
+                    <h2>Kael Mart</h2>
+                    <p id="simObjective">
+                      Isi rak sesuai pesanan, lalu layani pelanggan di kasir.
+                    </p>
+                  </div>
+                  <img
+                    class="sim-reference-photo"
+                    src="foto%20game.jpg"
+                    alt="Suasana game simulasi supermarket"
+                  />
+                </div>
+                <div class="sim-order-strip">
+                  <div>
+                    <span>Pelanggan</span
+                    ><strong id="simCustomerText">Menyiapkan toko...</strong>
+                  </div>
+                  <div>
+                    <span>Terlayani</span
+                    ><strong id="simServed">0 pelanggan</strong>
+                  </div>
+                </div>
+                <div class="sim-layout">
+                  <div
+                    class="supermarket-map"
+                    id="supermarketMap"
+                    role="grid"
+                    aria-label="Peta supermarket"
+                  ></div>
+                  <div class="sim-controls">
+                    <span class="sim-control-label">Pilih barang</span>
+                    <div
+                      class="sim-products"
+                      role="group"
+                      aria-label="Pilih barang untuk restock"
+                    >
+                      <button
+                        class="sim-product-btn active"
+                        type="button"
+                        data-product="snack"
+                      >
+                        🥫 Snack
+                      </button>
+                      <button
+                        class="sim-product-btn"
+                        type="button"
+                        data-product="drink"
+                      >
+                        🥤 Minuman
+                      </button>
+                      <button
+                        class="sim-product-btn"
+                        type="button"
+                        data-product="bread"
+                      >
+                        🍞 Roti
+                      </button>
+                    </div>
+                    <div class="sim-inventory">
+                      Di tangan
+                      <strong id="simInventory"
+                        >Snack 1 · Minuman 1 · Roti 1</strong
+                      >
+                    </div>
+                    <button
+                      class="sim-interact-btn"
+                      id="simInteractBtn"
+                      type="button"
+                    >
+                      Interaksi
+                    </button>
+                    <div class="sim-dpad" aria-label="Kontrol gerak">
+                      <button
+                        type="button"
+                        data-move="up"
+                        aria-label="Bergerak ke atas"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        type="button"
+                        data-move="left"
+                        aria-label="Bergerak ke kiri"
+                      >
+                        ◀
+                      </button>
+                      <button
+                        type="button"
+                        data-move="down"
+                        aria-label="Bergerak ke bawah"
+                      >
+                        ▼
+                      </button>
+                      <button
+                        type="button"
+                        data-move="right"
+                        aria-label="Bergerak ke kanan"
+                      >
+                        ▶
+                      </button>
+                    </div>
+                    <p class="sim-key-hint">
+                      Gerak: WASD / tombol panah<br />Interaksi: E / Enter
+                    </p>
+                  </div>
+                </div>
+                <div class="sim-live-log" id="simLog" aria-live="polite">
+                  Toko buka. Pelanggan pertama sedang memilih barang.
+                </div>
+                <div id="businessCube" hidden></div>
+              </div>
+
+              <div class="market-meter">
+                <div class="market-meter-labels">
+                  <span>Demand market</span>
+                  <strong id="marketDemandValue">35%</strong>
+                </div>
+                <div class="market-meter-track">
+                  <div class="market-meter-fill" id="marketMeterFill"></div>
+                </div>
+              </div>
+
+              <button
+                class="game-action-btn"
+                id="gameActionBtn"
+                type="button"
+                hidden
+              >
+                🚀 Launch Produk Baru
+              </button>
+            </div>
+
+            <div class="game-mode-panel" id="quizMode">
+              <div class="quiz-panel">
+                <span class="quiz-label">Quiz Bisnis</span>
+                <h3 id="quizQuestion">Pertanyaan akan muncul di sini.</h3>
+                <div class="quiz-choices" id="quizChoices"></div>
+                <div class="quiz-footer">
+                  <strong id="quizScore">Skor: 0</strong>
+                  <button class="secondary-btn" type="button" id="nextQuizBtn">
+                    Soal berikutnya
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="game-mode-panel" id="battleMode">
+              <div class="battle-panel">
+                <div class="battle-header">
+                  <div>
+                    <span class="battle-label">Battle</span>
+                    <h3>Clicker Battle</h3>
+                  </div>
+                  <button
+                    class="primary-btn"
+                    id="battleActionBtn"
+                    type="button"
+                  >
+                    ⚔️ Klik untuk menyerang
+                  </button>
+                </div>
+                <div class="battle-bars">
+                  <div class="battle-player">
+                    <label>Player</label>
+                    <div class="battle-bar">
+                      <span id="playerBattleBar"></span>
+                    </div>
+                    <strong id="playerBattleScore">0</strong>
+                  </div>
+                  <div class="battle-player">
+                    <label>Competitor</label>
+                    <div class="battle-bar rival">
+                      <span id="rivalBattleBar"></span>
+                    </div>
+                    <strong id="rivalBattleScore">0</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="game-sidepanel">
+            <div class="game-stat-grid">
+              <div class="game-stat-box">
+                <span>Uang</span>
+                <strong id="gameCoins">0</strong>
+              </div>
+              <div class="game-stat-box">
+                <span>Level</span>
+                <strong id="gameLevel">1</strong>
+              </div>
+              <div class="game-stat-box">
+                <span>Target</span>
+                <strong id="gameTarget">120</strong>
+              </div>
+              <div class="game-stat-box">
+                <span>Power</span>
+                <strong id="gamePower">1</strong>
+              </div>
+            </div>
+
+            <div class="upgrade-panel">
+              <h3>Upgrade</h3>
+              <div class="game-upgrades">
+                <button class="upgrade-btn" data-upgrade="ads" type="button">
+                  📣 Iklan: Rp 25
+                </button>
+                <button class="upgrade-btn" data-upgrade="team" type="button">
+                  👥 Tim: Rp 60
+                </button>
+                <button
+                  class="upgrade-btn"
+                  data-upgrade="automation"
+                  type="button"
+                >
+                  ⚙️ Auto: Rp 120
+                </button>
+              </div>
+            </div>
+
+            <div class="game-actions-row">
+              <button
+                id="saveGameBtn"
+                class="secondary-btn large"
+                type="button"
+              >
+                💾 Save
+              </button>
+              <button id="newGameBtn" class="primary-btn large" type="button">
+                🔄 New Game
+              </button>
+            </div>
+
+            <div class="audio-toggle-row">
+              <button
+                id="audioToggleBtn"
+                class="audio-toggle-btn"
+                type="button"
+              >
+                🔊 Musik: ON
+              </button>
+            </div>
+
+            <div class="player-score-box">
+              <label for="playerNameInput">Nama pemain</label>
+              <input
+                id="playerNameInput"
+                type="text"
+                value="Player"
+                maxlength="18"
+                placeholder="Masukkan nama Anda"
+              />
+            </div>
+
+            <div class="countdown-box">
+              <span>Countdown</span>
+              <strong id="countdownTimer">90s</strong>
+            </div>
+
+            <div class="leaderboard-box">
+              <h3>Leaderboard Score</h3>
+              <ol id="leaderboardList"></ol>
+            </div>
+
+            <div class="game-log" id="gameLog">
+              Bisnis digitalmu siap diluncurkan. Klika tombol untuk memulai.
+            </div>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

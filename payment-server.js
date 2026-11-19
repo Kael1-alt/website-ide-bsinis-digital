@@ -5,6 +5,7 @@ const crypto = require('node:crypto');
 const { DatabaseSync } = require('node:sqlite');
 
 const ROOT = __dirname;
+const PUBLIC_ROOT = path.join(ROOT, 'storefront');
 const PRODUCT_CATALOG = [
     { id: 1, name: 'Tomat Segar Premium', category: 'sayur', price: 15000, oldPrice: 22000, rating: 4.9, reviews: 182, badge: 'Segar', seller: 'Tani Jaya', emoji: '🍅', image: 'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?auto=format&fit=crop&w=900&q=80' },
     { id: 2, name: 'Paket Sayur Campur', category: 'sayur', price: 34000, oldPrice: 47000, rating: 4.8, reviews: 256, badge: 'Hemat', seller: 'Sumber Hijau', emoji: '🥬', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80' },
@@ -1092,8 +1093,8 @@ function createAppServer(options = {}) {
             return jsonResponse(response, 404, { error: 'Endpoint tidak ditemukan.' });
         }
         const relativePath = pathname === '/' ? 'index.html' : pathname.slice(1);
-        const filePath = path.resolve(ROOT, relativePath);
-        if (!filePath.startsWith(`${ROOT}${path.sep}`) || !MIME_TYPES[path.extname(filePath).toLowerCase()]) {
+        const filePath = path.resolve(PUBLIC_ROOT, relativePath);
+        if (!filePath.startsWith(`${PUBLIC_ROOT}${path.sep}`) || !MIME_TYPES[path.extname(filePath).toLowerCase()]) {
             response.writeHead(404);
             return response.end('Tidak ditemukan.');
         }
