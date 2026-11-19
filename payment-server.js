@@ -136,6 +136,24 @@ function verifyPassword(password, storedHash) {
     return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
 }
 
+function hashVerificationCode(code, secret) {
+    return crypto.createHmac('sha256', secret).update(code).digest('hex');
+}
+
+function isVerificationCodeValid(code, storedHash, secret) {
+    if (typeof code !== 'string' || !/^\d{6}$/.test(code)) return false;
+    const expected = Buffer.from(storedHash, 'hex');
+    const actual = Buffer.from(hashVerificationCode(code, secret), 'hex');
+    return expected.length === actual.length && crypto.timingSafeEqual(actual, expected);
+}
+
+function toInternationalPhone(phone) {
+    const digits = phone.replace(/\D/g, '');
+    if (digits.startsWith('0')) return `+62${digits.slice(1)}`;
+    if (digits.startsWith('62')) return `+${digits}`;
+    return `+${digits}`;
+}
+
 function getListenHost(env = process.env) {
     return env.HOST || '127.0.0.1';
 }
@@ -214,6 +232,15 @@ function initializeDatabase(dbPath) {
             role TEXT NOT NULL CHECK (role IN ('buyer', 'seller')),
             seller_status TEXT NOT NULL CHECK (seller_status IN ('none', 'pending', 'approved', 'rejected')),
             created_at TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS registration_verifications (
+            email TEXT PRIMARY KEY COLLATE NOCASE,
+            phone TEXT NOT NULL UNIQUE,
+            email_code_hash TEXT NOT NULL,
+            phone_code_hash TEXT NOT NULL,
+            attempts INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL,
+            expires_at TEXT NOT NULL
         );
         CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY,
@@ -340,6 +367,12 @@ function createAppServer(options = {}) {
             : crypto.randomBytes(32).toString('hex'),
         publicBaseUrl: (env.PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/+$/, ''),
         serverKey: env.MIDTRANS_SERVER_KEY || '',
+        resendApiKey: env.RESEND_API_KEY || '',
+        resendFromEmail: env.RESEND_FROM_EMAIL || '',
+        twilioAccountSid: env.TWILIO_ACCOUNT_SID || '',
+        twilioAuthToken: env.TWILIO_AUTH_TOKEN || '',
+        twilioFromNumber: env.TWILIO_FROM_NUMBER || '',
+        verificationMode: env.VERIFICATION_MODE === 'both' ? 'both' : 'email',
         secureCookies: env.COOKIE_SECURE === 'true' || env.NODE_ENV === 'production',
         snapUrl: isProduction
             ? 'https://app.midtrans.com/snap/v1/transactions'
@@ -347,6 +380,7 @@ function createAppServer(options = {}) {
     };
     const database = initializeDatabase(options.dbPath || path.join(ROOT, 'data', 'orders.sqlite'));
     const loginFailures = new Map();
+    const verificationRequests = new Map();
     const statements = {
         insert: database.prepare(`
             INSERT INTO orders (
@@ -398,6 +432,42 @@ function createAppServer(options = {}) {
     };
     const fetchImpl = options.fetchImpl || fetch;
     const cookieOptions = config.secureCookies ? '; Secure' : '';
+    const sendVerificationEmail = options.sendVerificationEmail || (async (email, code) => {
+        const result = await fetchImpl('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${config.resendApiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                from: config.resendFromEmail,
+                to: [email],
+                subject: 'Kode verifikasi Kaelstore',
+                text: `Kode verifikasi email Kaelstore Anda: ${code}. Kode berlaku selama 10 menit.`
+            })
+        });
+        if (!result.ok) throw new Error(`Resend gagal mengirim email (HTTP ${result.status}).`);
+    });
+    const sendVerificationSms = options.sendVerificationSms || (async (phone, code) => {
+        const credentials = Buffer.from(`${config.twilioAccountSid}:${config.twilioAuthToken}`).toString('base64');
+        const body = new URLSearchParams({
+            From: config.twilioFromNumber,
+            To: phone,
+            Body: `Kode verifikasi Kaelstore Anda: ${code}. Kode berlaku selama 10 menit.`
+        });
+        const result = await fetchImpl(
+            `https://api.twilio.com/2010-04-01/Accounts/${config.twilioAccountSid}/Messages.json`,
+            {
+                method: 'POST',
+                headers: {
+                    Authorization: `Basic ${credentials}`,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body
+            }
+        );
+        if (!result.ok) throw new Error(`Twilio gagal mengirim SMS (HTTP ${result.status}).`);
+    });
 
     function setSessionCookie(token, maxAge = 8 * 60 * 60) {
         return {
@@ -495,6 +565,98 @@ function createAppServer(options = {}) {
             return jsonResponse(response, 200, { products: products.map(product => mapProduct(product, product.seller_name)) });
         }
 
+        if (request.method === 'POST' && pathname === '/api/auth/register/send-code') {
+            if (!config.sessionSecret) return jsonResponse(response, 503, { error: 'Server belum dikonfigurasi untuk sesi akun.' });
+            if (!(config.resendApiKey && config.resendFromEmail) && !options.sendVerificationEmail) {
+                return jsonResponse(response, 503, { error: 'Pengiriman email belum dikonfigurasi. Atur RESEND_API_KEY dan RESEND_FROM_EMAIL di .env.' });
+            }
+            if (config.verificationMode === 'both'
+                && !(config.twilioAccountSid && config.twilioAuthToken && config.twilioFromNumber)
+                && !options.sendVerificationSms) {
+                return jsonResponse(response, 503, { error: 'Pengiriman SMS belum dikonfigurasi. Atur TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, dan TWILIO_FROM_NUMBER di .env.' });
+            }
+            const body = await readJson(request);
+            const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+            const phone = typeof body.phone === 'string' ? body.phone.trim() : '';
+            const phoneDigits = phone.replace(/\D/g, '');
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 || email === 'admin@kaelstore.com') {
+                return jsonResponse(response, 400, { error: 'Email tidak valid.' });
+            }
+            if (!/^[0-9+()\-\s]{8,20}$/.test(phone) || phoneDigits.length < 8 || phoneDigits.length > 15) {
+                return jsonResponse(response, 400, { error: 'Nomor HP tidak valid.' });
+            }
+            const rateLimitKeys = [`email:${email}`, `phone:${toInternationalPhone(phone)}`];
+            const activeRequests = rateLimitKeys.map(key => {
+                const requests = (verificationRequests.get(key) || []).filter(time => Date.now() - time < 15 * 60 * 1000);
+                verificationRequests.set(key, requests);
+                return requests;
+            });
+            if (activeRequests.some(requests => requests.length >= (options.verificationRateLimit || 5))) {
+                return jsonResponse(response, 429, { error: 'Terlalu banyak permintaan kode. Coba lagi dalam 15 menit.' });
+            }
+            const existing = database.prepare('SELECT email, phone FROM users WHERE email = ? COLLATE NOCASE OR phone = ?').get(email, phone);
+            if (existing) return jsonResponse(response, 409, { error: 'Email atau nomor HP sudah terdaftar.' });
+            database.prepare('DELETE FROM registration_verifications WHERE expires_at <= ?').run(new Date().toISOString());
+            const previous = database.prepare(`
+                SELECT email, phone, created_at FROM registration_verifications
+                WHERE email = ? COLLATE NOCASE OR phone = ?
+            `).get(email, phone);
+            if (previous && (previous.email.toLowerCase() !== email || previous.phone !== phone)) {
+                return jsonResponse(response, 409, { error: 'Email atau nomor HP sedang digunakan untuk permintaan verifikasi lain.' });
+            }
+            if (previous && Date.now() - Date.parse(previous.created_at) < 60 * 1000) {
+                return jsonResponse(response, 429, { error: 'Tunggu 60 detik sebelum meminta kode baru.' });
+            }
+            const emailCode = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
+            const phoneCode = config.verificationMode === 'both'
+                ? String(crypto.randomInt(0, 1000000)).padStart(6, '0')
+                : '';
+            const requestedAt = Date.now();
+            rateLimitKeys.forEach((key, index) => {
+                activeRequests[index].push(requestedAt);
+                verificationRequests.set(key, activeRequests[index]);
+            });
+            try {
+                const deliveries = [sendVerificationEmail(email, emailCode)];
+                if (config.verificationMode === 'both') {
+                    deliveries.push(sendVerificationSms(toInternationalPhone(phone), phoneCode));
+                }
+                await Promise.all(deliveries);
+            } catch (error) {
+                console.error('Verification code delivery failed:', error);
+                return jsonResponse(response, 502, { error: 'Kode tidak berhasil dikirim. Periksa konfigurasi email/SMS atau coba lagi nanti.' });
+            }
+            const now = new Date();
+            const createdAt = now.toISOString();
+            const expiresAt = new Date(now.getTime() + 10 * 60 * 1000).toISOString();
+            try {
+                database.prepare(`
+                    INSERT INTO registration_verifications (email, phone, email_code_hash, phone_code_hash, attempts, created_at, expires_at)
+                    VALUES (?, ?, ?, ?, 0, ?, ?)
+                    ON CONFLICT(email) DO UPDATE SET phone = excluded.phone,
+                        email_code_hash = excluded.email_code_hash, phone_code_hash = excluded.phone_code_hash,
+                        attempts = 0, created_at = excluded.created_at, expires_at = excluded.expires_at
+                `).run(
+                    email,
+                    phone,
+                    hashVerificationCode(emailCode, config.sessionSecret),
+                    phoneCode ? hashVerificationCode(phoneCode, config.sessionSecret) : '',
+                    createdAt,
+                    expiresAt
+                );
+            } catch (error) {
+                if (error.errcode === 2067 || error.errcode === 1555) {
+                    return jsonResponse(response, 409, { error: 'Email atau nomor HP sudah memiliki permintaan verifikasi aktif.' });
+                }
+                throw error;
+            }
+            const channels = config.verificationMode === 'both' ? ['email', 'phone'] : ['email'];
+            const message = config.verificationMode === 'both'
+                ? 'Kode verifikasi dikirim ke email dan nomor HP Anda.'
+                : 'Kode verifikasi dikirim ke email Anda.';
+            return jsonResponse(response, 200, { message, channels });
+        }
+
         if (request.method === 'POST' && pathname === '/api/auth/register') {
             if (!config.sessionSecret) return jsonResponse(response, 503, { error: 'Server belum dikonfigurasi untuk sesi akun.' });
             const body = await readJson(request);
@@ -511,6 +673,29 @@ function createAppServer(options = {}) {
                 return jsonResponse(response, 400, { error: 'Nomor HP tidak valid.' });
             }
             if (password.length < 12 || password.length > 200) return jsonResponse(response, 400, { error: 'Password harus minimal 12 karakter.' });
+            const existing = database.prepare('SELECT id FROM users WHERE email = ? COLLATE NOCASE OR phone = ?').get(email, phone);
+            if (existing) return jsonResponse(response, 409, { error: 'Email atau nomor HP sudah terdaftar.' });
+            const verification = database.prepare(`
+                SELECT email_code_hash, phone_code_hash, attempts, expires_at
+                FROM registration_verifications WHERE email = ? COLLATE NOCASE AND phone = ?
+            `).get(email, phone);
+            if (!verification || Date.parse(verification.expires_at) <= Date.now()) {
+                if (verification) database.prepare('DELETE FROM registration_verifications WHERE email = ? COLLATE NOCASE').run(email);
+                return jsonResponse(response, 400, { error: 'Kode verifikasi belum diminta atau sudah kedaluwarsa.' });
+            }
+            if (verification.attempts >= 5) {
+                database.prepare('DELETE FROM registration_verifications WHERE email = ? COLLATE NOCASE').run(email);
+                return jsonResponse(response, 429, { error: 'Batas percobaan kode tercapai. Minta kode baru.' });
+            }
+            const validEmailCode = isVerificationCodeValid(body.emailCode, verification.email_code_hash, config.sessionSecret);
+            const validPhoneCode = !verification.phone_code_hash
+                || isVerificationCodeValid(body.phoneCode, verification.phone_code_hash, config.sessionSecret);
+            if (!validEmailCode || !validPhoneCode) {
+                database.prepare('UPDATE registration_verifications SET attempts = attempts + 1 WHERE email = ? COLLATE NOCASE').run(email);
+                return jsonResponse(response, 400, {
+                    error: verification.phone_code_hash ? 'Kode email atau SMS salah.' : 'Kode email salah.'
+                });
+            }
             const now = new Date().toISOString();
             try {
                 const result = database.prepare(`
@@ -526,6 +711,7 @@ function createAppServer(options = {}) {
                     sellerStatus: body.requestSeller === true ? 'pending' : 'none'
                 };
                 const token = createSessionToken({ userId: user.id, role: user.role }, config.sessionSecret);
+                database.prepare('DELETE FROM registration_verifications WHERE email = ? COLLATE NOCASE').run(email);
                 return jsonResponse(response, 201, { user }, setSessionCookie(token));
             } catch (error) {
                 if (error.errcode === 2067 || error.errcode === 1555) {

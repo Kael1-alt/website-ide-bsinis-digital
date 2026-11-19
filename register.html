@@ -50,9 +50,22 @@
                         </select>
                     </div>
                 </div>
-                <button type="submit" class="primary-btn"><span>Buat Akun</span><b>→</b></button>
+                <div id="verificationFields" hidden>
+                    <p id="verificationInstructions" class="demo-warning">Masukkan kode yang dikirim ke email. Kode berlaku 10 menit.</p>
+                    <div class="form-group">
+                        <label for="registerEmailCode">Kode dari email</label>
+                        <div class="input-wrap"><span class="input-icon">✉</span><input id="registerEmailCode" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="6 digit"></div>
+                    </div>
+                    <div id="phoneVerificationField" class="form-group" hidden>
+                        <label for="registerPhoneCode">Kode dari SMS</label>
+                        <div class="input-wrap"><span class="input-icon">☎</span><input id="registerPhoneCode" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="6 digit"></div>
+                    </div>
+                    <button id="resendVerification" type="button" class="secondary-btn">Kirim ulang kode</button>
+                </div>
+                <button type="submit" class="primary-btn"><span>Kirim Kode Verifikasi</span><b>→</b></button>
             </form>
-            <p class="demo-warning">Gunakan password unik minimal 12 karakter. Permohonan akun penjual perlu disetujui admin.</p>
+            <p class="demo-warning">Email dan nomor HP harus aktif. Gunakan password unik minimal 12 karakter.</p>
+            <p class="demo-warning">Permohonan akun penjual perlu disetujui admin.</p>
             <p class="register-text">Sudah punya akun? <a href="login.html">Masuk</a></p>
             <p class="back-home"><a href="index.html">← Kembali ke Beranda</a></p>
         </section>
@@ -74,11 +87,76 @@
 
         const form = document.getElementById("registerForm");
         const toast = document.getElementById("toast");
-        form.addEventListener("submit", async event => {
-            event.preventDefault();
-            const button = form.querySelector('[type="submit"]');
+        const verificationFields = document.getElementById("verificationFields");
+        const submitButton = form.querySelector('[type="submit"]');
+        let verificationRequestedFor = "";
+
+        function currentContactKey() {
+            return `${document.getElementById("registerEmail").value.trim().toLowerCase()}|${document.getElementById("registerPhone").value.trim()}`;
+        }
+
+        async function sendVerificationCode() {
+            const email = document.getElementById("registerEmail").value.trim();
+            const phone = document.getElementById("registerPhone").value.trim();
+            const response = await fetch('/api/auth/register/send-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, phone })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || "Tidak dapat mengirim kode verifikasi.");
+            verificationRequestedFor = `${email.toLowerCase()}|${phone}`;
+            verificationFields.hidden = false;
+            const phoneVerificationField = document.getElementById("phoneVerificationField");
+            const phoneCodeInput = document.getElementById("registerPhoneCode");
+            const requiresPhoneCode = result.channels.includes("phone");
+            phoneVerificationField.hidden = !requiresPhoneCode;
+            phoneCodeInput.required = requiresPhoneCode;
+            document.getElementById("verificationInstructions").textContent = requiresPhoneCode
+                ? "Masukkan kode yang dikirim ke email dan SMS. Kode berlaku 10 menit."
+                : "Masukkan kode yang dikirim ke email. Kode berlaku 10 menit.";
+            document.getElementById("registerEmailCode").required = true;
+            submitButton.querySelector("span").textContent = "Verifikasi & Buat Akun";
+            toast.textContent = result.message;
+            toast.classList.add("show");
+        }
+
+        ["registerEmail", "registerPhone"].forEach(id => {
+            document.getElementById(id).addEventListener("input", () => {
+                verificationRequestedFor = "";
+                verificationFields.hidden = true;
+                document.getElementById("registerEmailCode").required = false;
+                document.getElementById("registerPhoneCode").required = false;
+                document.getElementById("phoneVerificationField").hidden = true;
+                document.getElementById("registerEmailCode").value = "";
+                document.getElementById("registerPhoneCode").value = "";
+                submitButton.querySelector("span").textContent = "Kirim Kode Verifikasi";
+            });
+        });
+
+        document.getElementById("resendVerification").addEventListener("click", async () => {
+            const button = document.getElementById("resendVerification");
             button.disabled = true;
             try {
+                await sendVerificationCode();
+            } catch (error) {
+                toast.textContent = error instanceof TypeError
+                    ? "Server akun tidak terhubung. Buka halaman melalui server Kaelstore."
+                    : error.message;
+                toast.classList.add("show");
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        form.addEventListener("submit", async event => {
+            event.preventDefault();
+            submitButton.disabled = true;
+            try {
+                if (!verificationRequestedFor || verificationRequestedFor !== currentContactKey()) {
+                    await sendVerificationCode();
+                    return;
+                }
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -87,6 +165,8 @@
                         email: document.getElementById("registerEmail").value.trim(),
                         phone: document.getElementById("registerPhone").value.trim(),
                         password: document.getElementById("registerPassword").value,
+                        emailCode: document.getElementById("registerEmailCode").value.trim(),
+                        phoneCode: document.getElementById("registerPhoneCode").value.trim(),
                         requestSeller: document.getElementById("requestSeller").value === "true"
                     })
                 });
@@ -100,7 +180,7 @@
                     : error.message;
                 toast.classList.add("show");
             } finally {
-                button.disabled = false;
+                submitButton.disabled = false;
             }
         });
     </script>

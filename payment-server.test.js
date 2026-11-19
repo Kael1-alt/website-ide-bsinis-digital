@@ -15,7 +15,18 @@ const {
     verifyMidtransSignature
 } = require('./payment-server');
 
-async function startTestServer(t, { serverKey = '', fetchImpl, dbPath: existingDbPath, env: envOverrides = {} } = {}) {
+const verificationCodes = new Map();
+
+async function startTestServer(t, {
+    serverKey = '',
+    fetchImpl,
+    dbPath: existingDbPath,
+    env: envOverrides = {},
+    verificationRateLimit = 100,
+    mockVerificationDelivery = true,
+    sendVerificationEmail,
+    sendVerificationSms
+} = {}) {
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'kaelstore-test-'));
     const dbPath = existingDbPath || path.join(directory, 'orders.sqlite');
     const server = createAppServer({
@@ -24,10 +35,23 @@ async function startTestServer(t, { serverKey = '', fetchImpl, dbPath: existingD
             ADMIN_PASSWORD: 'test-admin-password',
             ADMIN_SESSION_SECRET: 'test-session-secret-with-sufficient-randomness',
             MIDTRANS_SERVER_KEY: serverKey,
+            RESEND_API_KEY: 'test-resend-key',
+            RESEND_FROM_EMAIL: 'verify@example.com',
+            TWILIO_ACCOUNT_SID: 'test-twilio-account',
+            TWILIO_AUTH_TOKEN: 'test-twilio-token',
+            TWILIO_FROM_NUMBER: '+15005550006',
+            VERIFICATION_MODE: 'both',
             PUBLIC_BASE_URL: 'http://localhost',
             ...envOverrides
         },
-        fetchImpl
+        fetchImpl,
+        verificationRateLimit,
+        sendVerificationEmail: sendVerificationEmail || (mockVerificationDelivery
+            ? async (email, code) => verificationCodes.set(`email:${email}`, code)
+            : undefined),
+        sendVerificationSms: sendVerificationSms || (mockVerificationDelivery
+            ? async (phone, code) => verificationCodes.set(`phone:${phone}`, code)
+            : undefined)
     });
     await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
     const origin = `http://127.0.0.1:${server.address().port}`;
@@ -50,15 +74,27 @@ function orderPayload(overrides = {}) {
 }
 
 async function registerAccount(origin, overrides = {}) {
+    const account = {
+        name: 'Pembeli Test',
+        email: `buyer-${crypto.randomBytes(5).toString('hex')}@example.com`,
+        phone: `08${String(crypto.randomInt(100000000, 999999999))}`,
+        password: 'password-test-123',
+        ...overrides
+    };
+    const sendCodes = await fetch(`${origin}/api/auth/register/send-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: account.email, phone: account.phone })
+    });
+    const sendResult = await sendCodes.json();
+    assert.equal(sendCodes.status, 200, sendResult.error);
     const response = await fetch(`${origin}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            name: 'Pembeli Test',
-            email: `buyer-${crypto.randomBytes(5).toString('hex')}@example.com`,
-            phone: `08${String(crypto.randomInt(100000000, 999999999))}`,
-            password: 'password-test-123',
-            ...overrides
+            ...account,
+            emailCode: verificationCodes.get(`email:${account.email.toLowerCase()}`),
+            phoneCode: verificationCodes.get(`phone:+62${account.phone.replace(/\D/g, '').slice(1)}`)
         })
     });
     const result = await response.json();
@@ -67,7 +103,7 @@ async function registerAccount(origin, overrides = {}) {
     assert.match(setCookie, /HttpOnly/);
     assert.match(setCookie, /SameSite=Strict/);
     assert.equal('token' in result, false);
-    return { ...result, cookie: setCookie.split(';')[0] };
+    return { ...result, cookie: setCookie.split(';')[0], setCookie };
 }
 
 test('secure server defaults, cookie flags, password length, and login throttling are enforced', async t => {
@@ -101,17 +137,135 @@ test('secure server defaults, cookie flags, password length, and login throttlin
             NODE_ENV: 'production'
         }
     });
-    const secureRegister = await fetch(`${secureOrigin}/api/auth/register`, {
+    const secureRegister = await registerAccount(secureOrigin, {
+        name: 'Secure Cookie',
+        email: 'secure-cookie@example.com',
+        phone: '081234567898',
+        password: 'very-secure-password-123'
+    });
+    assert.match(secureRegister.setCookie, /; Secure/);
+});
+
+test('registration requires valid email and SMS codes before creating an account', async t => {
+    const origin = await startTestServer(t);
+    const account = {
+        name: 'Verifikasi Test',
+        email: 'verification@example.com',
+        phone: '081234567899',
+        password: 'password-test-123'
+    };
+    const send = await fetch(`${origin}/api/auth/register/send-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: account.email, phone: account.phone })
+    });
+    assert.equal(send.status, 200);
+    assert.deepEqual(await send.json(), {
+        message: 'Kode verifikasi dikirim ke email dan nomor HP Anda.',
+        channels: ['email', 'phone']
+    });
+    const emailCode = verificationCodes.get(`email:${account.email}`);
+    const phoneCode = verificationCodes.get(`phone:+62${account.phone.slice(1).replace(/\D/g, '')}`);
+
+    const invalid = await fetch(`${origin}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...account, emailCode: '000000', phoneCode })
+    });
+    assert.equal(invalid.status, 400);
+    assert.equal(invalid.headers.get('set-cookie'), null);
+
+    const verified = await fetch(`${origin}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...account, emailCode, phoneCode })
+    });
+    assert.equal(verified.status, 201);
+    assert.equal((await verified.json()).user.email, account.email);
+    assert.match(verified.headers.get('set-cookie'), /HttpOnly/);
+
+    const throttledOrigin = await startTestServer(t, { verificationRateLimit: 1 });
+    const firstRequest = await fetch(`${throttledOrigin}/api/auth/register/send-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'first@example.com', phone: '081234567890' })
+    });
+    assert.equal(firstRequest.status, 200);
+    const secondRequest = await fetch(`${throttledOrigin}/api/auth/register/send-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'first@example.com', phone: '081234567891' })
+    });
+    assert.equal(secondRequest.status, 429);
+
+    const providerCalls = [];
+    const providerOrigin = await startTestServer(t, {
+        mockVerificationDelivery: false,
+        fetchImpl: async (url, options) => {
+            providerCalls.push({ url, options });
+            return { ok: true, status: 200 };
+        }
+    });
+    const providerSend = await fetch(`${providerOrigin}/api/auth/register/send-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'provider@example.com', phone: '081234567890' })
+    });
+    assert.equal(providerSend.status, 200);
+    assert.match(providerCalls[0].url, /api\.resend\.com\/emails$/);
+    assert.deepEqual(JSON.parse(providerCalls[0].options.body).to, ['provider@example.com']);
+    assert.match(providerCalls[1].url, /api\.twilio\.com\/2010-04-01\/Accounts\/test-twilio-account\/Messages\.json$/);
+    assert.equal(new URLSearchParams(providerCalls[1].options.body).get('To'), '+6281234567890');
+
+    const unconfiguredOrigin = await startTestServer(t, {
+        mockVerificationDelivery: false,
+        env: {
+            RESEND_API_KEY: '',
+            RESEND_FROM_EMAIL: '',
+            TWILIO_ACCOUNT_SID: '',
+            TWILIO_AUTH_TOKEN: '',
+            TWILIO_FROM_NUMBER: ''
+        }
+    });
+    const unconfiguredSend = await fetch(`${unconfiguredOrigin}/api/auth/register/send-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'missing@example.com', phone: '081234567890' })
+    });
+    assert.equal(unconfiguredSend.status, 503);
+
+    let emailOnlySent = '';
+    const emailOnlyOrigin = await startTestServer(t, {
+        env: { VERIFICATION_MODE: 'email' },
+        sendVerificationEmail: async (email, code) => {
+            emailOnlySent = `${email}:${code}`;
+        },
+        sendVerificationSms: async () => {
+            assert.fail('Email-only mode must not send SMS.');
+        }
+    });
+    const emailOnlySend = await fetch(`${emailOnlyOrigin}/api/auth/register/send-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'email-only@example.com', phone: '081234567892' })
+    });
+    const emailOnlyResult = await emailOnlySend.json();
+    assert.equal(emailOnlySend.status, 200);
+    assert.deepEqual(emailOnlyResult.channels, ['email']);
+    const [emailOnlyAddress, emailOnlyCode] = emailOnlySent.split(':');
+    assert.equal(emailOnlyAddress, 'email-only@example.com');
+    const emailOnlyRegister = await fetch(`${emailOnlyOrigin}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            name: 'Secure Cookie',
-            email: 'secure-cookie@example.com',
-            phone: '081234567898',
-            password: 'very-secure-password-123'
+            name: 'Email Saja',
+            email: emailOnlyAddress,
+            phone: '081234567892',
+            password: 'password-test-123',
+            emailCode: emailOnlyCode
         })
     });
-    assert.match(secureRegister.headers.get('set-cookie'), /; Secure/);
+    assert.equal(emailOnlyRegister.status, 201);
 });
 
 test('checkout ignores forged item prices and persists COD orders', async t => {
